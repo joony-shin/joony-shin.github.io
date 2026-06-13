@@ -1,0 +1,19 @@
+{
+  "figures": [
+    { "key": "trump",    "name_ko": "도널드 트럼프", "title": "미국 대통령",       "source": "truthsocial", "handle": "realDonaldTrump",            "tags": ["트럼프", "미국정치"] },
+
+    { "key": "krugman",  "name_ko": "폴 크루그먼",   "title": "노벨경제학상 수상자", "source": "bluesky",     "handle": "pkrugman.bsky.social",       "tags": ["폴크루그먼", "경제"] },
+    { "key": "reich",    "name_ko": "로버트 라이시", "title": "전 미국 노동장관",   "source": "bluesky",     "handle": "rbreich.bsky.social",        "tags": ["로버트라이시", "경제", "미국정치"] },
+    { "key": "cuban",    "name_ko": "마크 큐반",     "title": "기업인·투자자",     "source": "bluesky",     "handle": "mcuban.bsky.social",         "tags": ["마크큐반", "경제"] },
+    { "key": "scanlon",  "name_ko": "카일라 스캔런", "title": "경제 평론가",       "source": "bluesky",     "handle": "kyla.bsky.social",           "tags": ["카일라스캔런", "경제"] },
+
+    { "key": "fed",      "name_ko": "미국 연방준비제도", "title": "중앙은행",      "source": "bluesky",     "handle": "federalreserve.gov",         "tags": ["연준", "중앙은행", "경제"] },
+    { "key": "ecb",      "name_ko": "유럽중앙은행(ECB)", "title": "중앙은행",      "source": "bluesky",     "handle": "ecb.europa.eu",              "tags": ["ECB", "중앙은행", "경제"] },
+    { "key": "lagarde",  "name_ko": "크리스틴 라가르드", "title": "ECB 총재",      "source": "bluesky",     "handle": "president.ecb.europa.eu",    "tags": ["라가르드", "ECB", "중앙은행"] },
+    { "key": "schnabel", "name_ko": "이자벨 슈나벨", "title": "ECB 이사",          "source": "bluesky",     "handle": "isabelschnabel.bsky.social", "tags": ["슈나벨", "ECB", "중앙은행"] },
+
+    { "key": "aoc",      "name_ko": "알렉산드리아 오카시오코르테스", "title": "미국 하원의원", "source": "bluesky", "handle": "aoc.bsky.social",            "tags": ["AOC", "미국정치"] },
+    { "key": "sanders",  "name_ko": "버니 샌더스",   "title": "미국 상원의원",     "source": "bluesky",     "handle": "sanders.senate.gov",         "tags": ["버니샌더스", "미국정치"] },
+    { "key": "newsom",   "name_ko": "개빈 뉴섬",     "title": "캘리포니아 주지사", "source": "bluesky",     "handle": "governor.ca.gov",            "tags": ["개빈뉴섬", "미국정치"] }
+  ]
+}

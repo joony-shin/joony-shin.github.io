@@ -16,7 +16,7 @@ cd "$REPO"
   # 최신 상태로 (다른 경로의 커밋과 충돌 방지)
   git pull --rebase --autostash origin main || true
 
-  "$UV" run automation/trump_blog.py "$MODE"
+  "$UV" run automation/sns_blog.py "$MODE"
 
   if [[ -n "$(git status --porcelain content/posts)" ]]; then
     git add content/posts
