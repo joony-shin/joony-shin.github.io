@@ -24,7 +24,7 @@ buildExpired = false
 [params]
   env = "production"        # robots, OpenGraph, schema.org 메타 활성화
   title = "joony-shin blog"
-  description = "자동 생성 블로그"
+  description = "트럼프 트루스 소셜과 미국 정치 소식을 한국어로 정리합니다."
   keywords = ["blog", "tech"]
   author = "joony-shin"
   defaultTheme = "auto"     # light/dark 자동
@@ -44,7 +44,7 @@ buildExpired = false
 
   [params.homeInfoParams]
     Title = "👋 안녕하세요"
-    Content = "자동으로 글이 쌓이는 블로그입니다."
+    Content = "트럼프 트루스 소셜과 미국 정치 소식을 한국어로 빠르게 전합니다."
 
   [[params.socialIcons]]
     name = "github"

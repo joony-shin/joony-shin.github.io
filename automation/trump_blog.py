@@ -127,7 +127,7 @@ def _write_post(*, slug: str, title: str, date_kst: dt.datetime, description: st
     footer = (
         "\n\n---\n\n"
         "> 이 글은 도널드 트럼프 미국 대통령의 트루스 소셜 공개 게시물을 한국어로 "
-        "요약·해설한 콘텐츠이며, 원문을 그대로 옮긴 것이 아닙니다. AI 가 자동 생성했습니다.\n\n"
+        "요약·해설한 콘텐츠입니다. 인용은 비평·보도 목적이며, 원문은 아래 출처에서 확인할 수 있습니다.\n\n"
         "**원문 출처**\n\n" + (src_lines or "- (출처 없음)")
     )
     seen: set[str] = set()
