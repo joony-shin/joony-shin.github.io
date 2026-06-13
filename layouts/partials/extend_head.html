@@ -1,0 +1,6 @@
+{{/* Google AdSense — hugo.toml 의 params.googleAdsenseClient 가 설정된 경우에만 출력.
+     승인 전(빈 값)에는 아무 스크립트도 나가지 않아 안전하다. */}}
+{{- with .Site.Params.googleAdsenseClient }}
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ . }}"
+        crossorigin="anonymous"></script>
+{{- end }}

@@ -1,0 +1,76 @@
+baseURL = "https://joony-shin.github.io/"
+locale = "ko-kr"
+defaultContentLanguage = "ko"
+title = "joony-shin blog"
+theme = "PaperMod"
+
+# 페이지네이션 (글이 쌓이는 자동 블로그 → 목록 분할)
+[pagination]
+  pagerSize = 10
+
+enableRobotsTXT = true
+buildDrafts = false
+buildFuture = false
+buildExpired = false
+
+# RSS/sitemap 전체 글 노출
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[minify]
+  disableXML = true
+  minifyOutput = true
+
+[params]
+  env = "production"        # robots, OpenGraph, schema.org 메타 활성화
+  title = "joony-shin blog"
+  description = "자동 생성 블로그"
+  keywords = ["blog", "tech"]
+  author = "joony-shin"
+  defaultTheme = "auto"     # light/dark 자동
+  ShowReadingTime = true
+  ShowShareButtons = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowRssButtonInSectionTermList = true
+  ShowToc = true
+  TocOpen = false
+
+  # ── Google AdSense ──────────────────────────────────────────
+  # 승인 후 발급받은 ca-pub-XXXXXXXXXXXXXXXX 로 교체하세요.
+  # 비어 있으면 광고 스크립트가 출력되지 않습니다(승인 전 안전).
+  googleAdsenseClient = ""
+
+  [params.homeInfoParams]
+    Title = "👋 안녕하세요"
+    Content = "자동으로 글이 쌓이는 블로그입니다."
+
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/joony-shin"
+
+[markup]
+  [markup.highlight]
+    noClasses = false
+    codeFences = true
+    guessSyntax = true
+  [markup.goldmark.renderer]
+    unsafe = true   # 본문에 광고 스니펫 등 raw HTML 허용
+
+[menu]
+  [[menu.main]]
+    identifier = "posts"
+    name = "글"
+    url = "/posts/"
+    weight = 10
+  [[menu.main]]
+    identifier = "tags"
+    name = "태그"
+    url = "/tags/"
+    weight = 20
+  [[menu.main]]
+    identifier = "search"
+    name = "검색"
+    url = "/search/"
+    weight = 30
