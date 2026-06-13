@@ -7,3 +7,9 @@ hugo_stats.json
 # OS / editor
 .DS_Store
 *.swp
+
+# automation
+automation/.env
+automation/state.json
+
+automation/logs/
