@@ -14,6 +14,9 @@
 
     { "key": "aoc",      "name_ko": "알렉산드리아 오카시오코르테스", "title": "미국 하원의원", "source": "bluesky", "handle": "aoc.bsky.social",            "tags": ["AOC", "미국정치"] },
     { "key": "sanders",  "name_ko": "버니 샌더스",   "title": "미국 상원의원",     "source": "bluesky",     "handle": "sanders.senate.gov",         "tags": ["버니샌더스", "미국정치"] },
-    { "key": "newsom",   "name_ko": "개빈 뉴섬",     "title": "캘리포니아 주지사", "source": "bluesky",     "handle": "governor.ca.gov",            "tags": ["개빈뉴섬", "미국정치"] }
+    { "key": "newsom",   "name_ko": "개빈 뉴섬",     "title": "캘리포니아 주지사", "source": "bluesky",     "handle": "governor.ca.gov",            "tags": ["개빈뉴섬", "미국정치"] },
+
+    { "key": "fsc_kr",   "name_ko": "금융위원회",    "title": "대한민국 금융정책 기관",   "source": "rss", "handle": "https://www.korea.kr/rss/dept_fsc.xml", "tags": ["금융위원회", "금융정책", "경제", "국내"], "no_breaking": true },
+    { "key": "ftc_kr",   "name_ko": "공정거래위원회", "title": "대한민국 경쟁정책 기관", "source": "rss", "handle": "https://www.korea.kr/rss/dept_ftc.xml", "tags": ["공정거래위원회", "경제", "국내"], "no_breaking": true }
   ]
 }

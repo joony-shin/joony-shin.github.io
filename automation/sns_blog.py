@@ -20,6 +20,8 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import email.utils
+import hashlib
 import html
 import json
 import os
@@ -28,6 +30,7 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -38,6 +41,8 @@ KST = ZoneInfo("Asia/Seoul")
 UTC = dt.timezone.utc
 TRUTHSOCIAL_ARCHIVE = "https://ix.cnn.io/data/truth-social/truth_archive.json"
 BSKY_PUBLIC = "https://public.api.bsky.app/xrpc"
+FACEBOOK_GRAPH = "https://graph.facebook.com/v21.0"
+ATOM = "{http://www.w3.org/2005/Atom}"
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
@@ -158,7 +163,117 @@ def fetch_bluesky(handle: str, *, since_utc: dt.datetime | None = None) -> list[
     return out
 
 
-SOURCES = {"truthsocial": fetch_truthsocial, "bluesky": fetch_bluesky}
+def _get_bytes(url: str) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (sns-blog/1.0)"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return r.read()
+
+
+def _parse_date(s: str) -> dt.datetime | None:
+    s = (s or "").strip()
+    if not s:
+        return None
+    try:  # RFC822 (RSS pubDate)
+        d = email.utils.parsedate_to_datetime(s)
+        return d if d.tzinfo else d.replace(tzinfo=UTC)
+    except (TypeError, ValueError):
+        pass
+    try:  # ISO8601 (Atom)
+        d = dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+        return d if d.tzinfo else d.replace(tzinfo=UTC)
+    except ValueError:
+        return None
+
+
+def fetch_rss(url: str, *, since_utc: dt.datetime | None = None) -> list[dict]:
+    """RSS 2.0 / Atom 모두 처리. 본문 = 제목 + 요약(HTML 제거). engagement 없음(0)."""
+    root = ET.fromstring(_get_bytes(url))
+    out: list[dict] = []
+    items = root.findall(".//item")
+    is_atom = False
+    if not items:
+        items = root.findall(f".//{ATOM}entry")
+        is_atom = True
+    for it in items:
+        if is_atom:
+            title = (it.findtext(f"{ATOM}title") or "").strip()
+            summary = it.findtext(f"{ATOM}summary") or it.findtext(f"{ATOM}content") or ""
+            when = _parse_date(it.findtext(f"{ATOM}published") or it.findtext(f"{ATOM}updated") or "")
+            link_el = it.find(f"{ATOM}link")
+            link = (link_el.get("href") if link_el is not None else "") or ""
+            uid = it.findtext(f"{ATOM}id") or link
+        else:
+            title = (it.findtext("title") or "").strip()
+            summary = it.findtext("description") or ""
+            when = _parse_date(it.findtext("pubDate") or "")
+            link = (it.findtext("link") or "").strip()
+            uid = it.findtext("guid") or link or title
+        if when is None:
+            continue
+        body = (title + "\n" + _strip_html(summary)).strip()
+        out.append(
+            {
+                "id": hashlib.md5(uid.encode("utf-8")).hexdigest()[:16],
+                "when_utc": when.astimezone(UTC),
+                "when_kst": when.astimezone(KST),
+                "text": body,
+                "url": link,
+                "media": [],
+                "favourites": 0,
+                "reblogs": 0,
+                "replies": 0,
+            }
+        )
+    out.sort(key=lambda x: x["when_utc"], reverse=True)
+    return out
+
+
+def fetch_facebook(page: str, *, since_utc: dt.datetime | None = None) -> list[dict]:
+    """Graph API page feed. 토큰 필요(Meta 앱심사+Page Public Content Access).
+
+    FACEBOOK_GRAPH_TOKEN 미설정 시 빈 목록 반환(비활성). 임의 공개 페이지를 읽으려면
+    승인된 앱 토큰이 있어야 한다 — 토큰 없이는 공개 페이지도 빈 응답이 정상이다.
+    """
+    token = os.environ.get("FACEBOOK_GRAPH_TOKEN", "").strip()
+    if not token:
+        print(f"    [facebook:{page}] FACEBOOK_GRAPH_TOKEN 미설정 — skip")
+        return []
+    params = {
+        "fields": "id,message,created_time,permalink_url",
+        "limit": "50",
+        "access_token": token,
+    }
+    data = _get_json(f"{FACEBOOK_GRAPH}/{page}/posts?{urllib.parse.urlencode(params)}")
+    rows = data.get("data", []) if isinstance(data, dict) else []
+    out: list[dict] = []
+    for p in rows:
+        msg = (p.get("message") or "").strip()
+        when = _parse_date(p.get("created_time") or "")
+        if when is None:
+            continue
+        out.append(
+            {
+                "id": str(p.get("id")),
+                "when_utc": when.astimezone(UTC),
+                "when_kst": when.astimezone(KST),
+                "text": msg,
+                "url": p.get("permalink_url") or "",
+                "media": [],
+                "favourites": 0,
+                "reblogs": 0,
+                "replies": 0,
+            }
+        )
+    out.sort(key=lambda x: x["when_utc"], reverse=True)
+    return out
+
+
+SOURCES = {
+    "truthsocial": fetch_truthsocial,
+    "bluesky": fetch_bluesky,
+    "rss": fetch_rss,
+    "facebook": fetch_facebook,
+}
 
 
 def fetch_posts(fig: dict, *, since_utc: dt.datetime | None = None) -> list[dict]:
@@ -169,7 +284,12 @@ def fetch_posts(fig: dict, *, since_utc: dt.datetime | None = None) -> list[dict
 
 
 def platform_label(fig: dict) -> str:
-    return {"truthsocial": "트루스 소셜", "bluesky": "블루스카이(Bluesky)"}[fig["source"]]
+    return {
+        "truthsocial": "트루스 소셜",
+        "bluesky": "블루스카이(Bluesky)",
+        "rss": "공식 보도자료",
+        "facebook": "페이스북",
+    }.get(fig["source"], fig["source"])
 
 
 # ─── 상태/파일 ────────────────────────────────────────────────────────────────
@@ -370,6 +490,8 @@ def main() -> int:
         print(f"[breaking] 인물 {len(figures)}명 (최근 {BREAKING_LOOKBACK_HOURS}h)")
         total = 0
         for fig in figures:
+            if fig.get("no_breaking"):  # 기관 보도자료 등은 다이제스트만 (속보 스팸 방지)
+                continue
             try:
                 total += run_breaking_for(fig, state)
             except Exception as e:
