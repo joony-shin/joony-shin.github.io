@@ -13,9 +13,9 @@ buildDrafts = false
 buildFuture = false
 buildExpired = false
 
-# RSS/sitemap 전체 글 노출
+# RSS/sitemap 전체 글 노출 (robots = robots.txt, JSON = PaperMod 검색 인덱스)
 [outputs]
-  home = ["HTML", "RSS", "JSON"]
+  home = ["HTML", "RSS", "JSON", "robots"]
 
 [minify]
   disableXML = true
@@ -25,7 +25,7 @@ buildExpired = false
   env = "production"        # robots, OpenGraph, schema.org 메타 활성화
   title = "joony-shin blog"
   description = "국내외 정치·경제계 주요 인사들의 SNS 발언을 한국어로 정리하고 해설합니다."
-  keywords = ["blog", "tech"]
+  keywords = ["정치", "경제", "트럼프", "미국정치", "SNS", "트루스소셜", "금융위", "한국어 브리핑"]
   author = "joony-shin"
   defaultTheme = "auto"     # light/dark 자동
   ShowReadingTime = true
@@ -49,6 +49,17 @@ buildExpired = false
   [[params.socialIcons]]
     name = "github"
     url = "https://github.com/joony-shin"
+
+  # ── 검색엔진 소유 확인(사이트 검증) ─────────────────────────────
+  # 코드만 붙이면 <head> 에 메타태그가 자동 출력됩니다(빈 값이면 미출력).
+  [params.analytics.google]
+    # Google Search Console → 속성 추가 → "HTML 태그" 방식의 content 값
+    SiteVerificationTag = ""
+  [params.analytics.naver]
+    # 네이버 서치어드바이저(searchadvisor.naver.com) → 사이트 등록 → 메타태그 content 값
+    SiteVerificationTag = ""
+  [params.analytics.bing]
+    SiteVerificationTag = ""
 
 [markup]
   [markup.highlight]
@@ -74,3 +85,9 @@ buildExpired = false
     name = "검색"
     url = "/search/"
     weight = 30
+
+# ── Google Analytics 4 (유입 추적) ─────────────────────────────
+# GA4 측정 ID(G-XXXXXXX)를 넣으면 모든 페이지에 추적 스크립트가 자동 삽입됩니다.
+# 비어 있으면 출력되지 않습니다.
+[services.googleAnalytics]
+  ID = ""
