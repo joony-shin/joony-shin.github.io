@@ -95,4 +95,4 @@ buildExpired = false
 # GA4 측정 ID(G-XXXXXXX)를 넣으면 모든 페이지에 추적 스크립트가 자동 삽입됩니다.
 # 비어 있으면 출력되지 않습니다.
 [services.googleAnalytics]
-  ID = "G-T5L26LCKKE"
+  ID = "G-1Y2P9NNLTD"
