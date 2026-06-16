@@ -40,7 +40,7 @@ buildExpired = false
   # ── Google AdSense ──────────────────────────────────────────
   # 승인 후 발급받은 ca-pub-XXXXXXXXXXXXXXXX 로 교체하세요.
   # 비어 있으면 광고 스크립트가 출력되지 않습니다(승인 전 안전).
-  googleAdsenseClient = ""
+  googleAdsenseClient = "ca-pub-9746752487835793"
 
   [params.homeInfoParams]
     Title = "👋 안녕하세요"
