@@ -1,0 +1,118 @@
+name: Publish blog posts (scheduled)
+
+# 머신 독립 자동 발행: 글 생성 → 커밋(content/posts, state.json) → Hugo 빌드 → Pages 배포.
+# 로컬 crontab(automation/run.sh)을 대체한다.
+on:
+  schedule:
+    # cron 시각은 UTC. KST = UTC+9.
+    - cron: "0 0 * * *"        # digest  : 매일 00:00 UTC = 09:00 KST
+    - cron: "0 3-23/4 * * *"   # breaking: 03·07·11·15·19·23 UTC = 12·16·20·00·04·08 KST (4시간 주기)
+  workflow_dispatch:           # 수동 실행 (모드 선택)
+    inputs:
+      mode:
+        description: "발행 모드"
+        required: true
+        default: breaking
+        type: choice
+        options: [digest, breaking]
+
+# 콘텐츠 커밋(contents:write) + Pages 배포(pages/id-token)
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# 발행 동시 실행 1건만 (state.json/푸시 경합 방지)
+concurrency:
+  group: "publish"
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      HUGO_VERSION: 0.163.1
+      TZ: Asia/Seoul   # 커밋 메시지 날짜를 KST 로
+      AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+      AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+      AZURE_OPENAI_DEPLOYMENT_DEFAULT: ${{ secrets.AZURE_OPENAI_DEPLOYMENT_DEFAULT }}
+      FACEBOOK_GRAPH_TOKEN: ${{ secrets.FACEBOOK_GRAPH_TOKEN }}   # 선택(없으면 빈 값)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive   # PaperMod 테마
+          fetch-depth: 0
+
+      - name: Determine mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if [ "${{ github.event.schedule }}" = "0 0 * * *" ]; then
+              echo "mode=digest" >> "$GITHUB_OUTPUT"
+            else
+              echo "mode=breaking" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Generate posts
+        run: uv run automation/sns_blog.py "${{ steps.mode.outputs.mode }}"
+
+      - name: Commit content + state
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase --autostash origin main || true
+          if [ -n "$(git status --porcelain content/posts automation/state.json)" ]; then
+            git add content/posts automation/state.json
+            git commit -m "content(${{ steps.mode.outputs.mode }}): 트럼프 트루스 소셜 자동 생성 $(date '+%F %T')"
+            git push origin main
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "변경 푸시 완료 — 빌드/배포 진행."
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "변경 없음 — 빌드/배포 생략."
+          fi
+
+      - name: Install Hugo CLI (extended)
+        if: steps.commit.outputs.changed == 'true'
+        run: |
+          wget -O "${{ runner.temp }}/hugo.deb" \
+            https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+          sudo dpkg -i "${{ runner.temp }}/hugo.deb"
+
+      - name: Setup Pages
+        if: steps.commit.outputs.changed == 'true'
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build with Hugo
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          HUGO_ENVIRONMENT: production
+        run: |
+          hugo \
+            --gc \
+            --minify \
+            --baseURL "${{ steps.pages.outputs.base_url }}/"
+
+      - name: Upload artifact
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,109 @@
+{
+  "published_breaking_ids": [],
+  "figures": {
+    "trump": {
+      "published_breaking_ids": [
+        "116743808155352167",
+        "116744329783387013",
+        "116745209532202669",
+        "116746575777210117",
+        "116746683568766400",
+        "116749002714205339",
+        "116749159132559454",
+        "116749412213359330",
+        "116749841607391318",
+        "116749870028302766",
+        "116750323241294561",
+        "116750372942466677",
+        "116750587569914985",
+        "116750814874397998",
+        "116754018976262039",
+        "116754019906128212",
+        "116754020702467123",
+        "116754023501669536",
+        "116754023813635526",
+        "116754024094818608",
+        "116754024347896013",
+        "116754024513118460",
+        "116754024740902171",
+        "116754024963336496",
+        "116754269577470122",
+        "116754283174782714",
+        "116754285003421395",
+        "116754286017145061",
+        "116754287044319129",
+        "116754288530173924",
+        "116756674797972374"
+      ]
+    },
+    "krugman": {
+      "published_breaking_ids": []
+    },
+    "reich": {
+      "published_breaking_ids": [
+        "3mo6g3p655b2y",
+        "3mo6mvuq47r2u",
+        "3mo72azzjn522",
+        "3mo7axpu5qd2m",
+        "3mo7ho5uulp2g",
+        "3moawmdxk5t24",
+        "3mob5cu5aze2z",
+        "3mobdzhsfi72e",
+        "3mobrgm4i7h2v",
+        "3mobyvirxpw2g",
+        "3modma23bca2h",
+        "3modqd5ygjk25",
+        "3modssnedmv2u",
+        "3modvbdxtlk2f",
+        "3modxtlhg6n2f",
+        "3moe73fccyk2k",
+        "3moe7dfrvpw2u",
+        "3moeajbmco424",
+        "3moedsckxts2k",
+        "3moefsncfh22k"
+      ]
+    },
+    "cuban": {
+      "published_breaking_ids": []
+    },
+    "scanlon": {
+      "published_breaking_ids": []
+    },
+    "fed": {
+      "published_breaking_ids": [
+        "3moden3vels2g"
+      ]
+    },
+    "ecb": {
+      "published_breaking_ids": [
+        "3mocq2e62yk2x",
+        "3mocrit2j7k2x",
+        "3mocwkmcmzk27",
+        "3mofdyrgwe224",
+        "3mofuqdbc6s2s"
+      ]
+    },
+    "lagarde": {
+      "published_breaking_ids": [
+        "3mockha2s5c27",
+        "3moczq5opdc2n"
+      ]
+    },
+    "schnabel": {
+      "published_breaking_ids": []
+    },
+    "aoc": {
+      "published_breaking_ids": []
+    },
+    "sanders": {
+      "published_breaking_ids": []
+    },
+    "newsom": {
+      "published_breaking_ids": [
+        "3modrso4ju22a",
+        "3moejrlradk2b",
+        "3moel6ikisc23"
+      ]
+    }
+  }
+}
