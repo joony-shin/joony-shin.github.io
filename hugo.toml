@@ -54,10 +54,10 @@ buildExpired = false
   # 코드만 붙이면 <head> 에 메타태그가 자동 출력됩니다(빈 값이면 미출력).
   [params.analytics.google]
     # Google Search Console → 속성 추가 → "HTML 태그" 방식의 content 값
-    SiteVerificationTag = ""
+    SiteVerificationTag = "w8zYChnjT1PS4VaUc6ELFPooYfVSP3x4aIcC2aK3knQ"
   [params.analytics.naver]
     # 네이버 서치어드바이저(searchadvisor.naver.com) → 사이트 등록 → 메타태그 content 값
-    SiteVerificationTag = ""
+    SiteVerificationTag = "edcaab4a26039086370a5a5a83f2d10def619423"
   [params.analytics.bing]
     SiteVerificationTag = ""
 
