@@ -6,7 +6,7 @@ on:
   schedule:
     # cron 시각은 UTC. KST = UTC+9.
     - cron: "0 0 * * *"        # digest  : 매일 00:00 UTC = 09:00 KST
-    - cron: "0 3-23/4 * * *"   # breaking: 03·07·11·15·19·23 UTC = 12·16·20·00·04·08 KST (4시간 주기)
+    - cron: "0 * * * *"        # breaking: 매시 정각 (1시간 주기)
   workflow_dispatch:           # 수동 실행 (모드 선택)
     inputs:
       mode:
