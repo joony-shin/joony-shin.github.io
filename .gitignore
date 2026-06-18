@@ -10,7 +10,8 @@ hugo_stats.json
 
 # automation
 automation/.env
-# automation/state.json 은 GitHub Actions 실행 간 중복-발행 방지 상태를
-# 유지해야 하므로 의도적으로 추적한다(.gitignore 에서 제외).
+__pycache__/
+# automation/state.json, automation/track_state.json 은 실행 간 중복-발행·중복-채점
+# 방지 상태를 유지해야 하므로 의도적으로 추적한다(.gitignore 에서 제외).
 
 automation/logs/

@@ -62,6 +62,31 @@ BREAKING_MAX_EVAL_PER_RUN = 8      # 인물당 1회 실행 LLM 평가 상한(비
 BSKY_PAGE_LIMIT = 100
 BSKY_MAX_PAGES = 6
 
+# ─── 투자 관점 공통 지침 ──────────────────────────────────────────────────────
+# 정치·경제 발언을 "시장/자산 관점"으로 한 겹 더 해석하되, 매수·매도 권유는 금지한다.
+# (한국 자본시장법상 유사투자자문 경계를 넘지 않기 위한 핵심 가드)
+INVESTMENT_GUIDE = (
+    "또한 이 발언이 자산·시장에 갖는 함의를 투자자 관점에서 한 겹 더 해석한다. "
+    "단, 특정 종목·자산의 매수·매도를 권유하거나 목표가·수익률을 단정하지 말 것 — "
+    "방향성과 그 근거, 영향받는 자산·섹터, 시간축, 신뢰도를 '정보'로만 제시한다. "
+    "정치적 수사(과장·선거용 메시지)와 실제 정책·시장 변수를 반드시 구분하고, "
+    "근거가 약하거나 추측이면 is_speculation=true, confidence='하'로 표시한다. "
+    "시장 함의가 거의 없는 잡담·개인사·스포츠 글이면 market_impact 를 null 로 둔다. "
+    "투자·시장 함의는 오직 market_impact 필드로만 제공하고, "
+    "본문(body_markdown)에는 '투자 관점/투자자 관점/시장 전망' 같은 별도 소제목을 만들지 말 것 "
+    "(본문은 발언 요약·해설에 집중한다 — 투자 관점 섹션은 시스템이 따로 붙인다)."
+)
+
+# market_impact JSON 스키마 조각 (digest/breaking 공용)
+MARKET_IMPACT_SCHEMA = (
+    '"market_impact": {"summary": str(한 문단, 투자자 관점 핵심), '
+    '"assets": [{"name": str(예: WTI 원유, 미국 국채금리, 달러, KOSPI), '
+    '"direction": "상승"|"하락"|"변동성 확대"|"중립", "rationale": str}], '
+    '"sectors": [str(예: 에너지, 방산, 반도체)], '
+    '"time_horizon": "단기"|"중기"|"장기", "confidence": "상"|"중"|"하", '
+    '"is_speculation": bool} | null'
+)
+
 
 def _client() -> AzureOpenAI:
     return AzureOpenAI(
@@ -318,13 +343,96 @@ def _yaml_escape(s: str) -> str:
     return s.replace("\\", "\\\\").replace('"', '\\"')
 
 
+_DIR_EMOJI = {"상승": "🔺", "하락": "🔻", "변동성 확대": "⚡", "중립": "➖"}
+
+
+def _clean_mi(mi: dict | None) -> dict | None:
+    """LLM market_impact 정규화. 빈 값/노이즈면 None."""
+    if not isinstance(mi, dict):
+        return None
+    assets = [a for a in (mi.get("assets") or []) if isinstance(a, dict) and a.get("name")]
+    sectors = [str(s).strip() for s in (mi.get("sectors") or []) if str(s).strip()]
+    summary = (mi.get("summary") or "").strip()
+    if not summary and not assets and not sectors:
+        return None
+    return {
+        "summary": summary,
+        "assets": assets,
+        "sectors": sectors,
+        "time_horizon": (mi.get("time_horizon") or "").strip(),
+        "confidence": (mi.get("confidence") or "").strip(),
+        "is_speculation": bool(mi.get("is_speculation")),
+    }
+
+
+# '투자…' 또는 '시장 + (신호/영향/전망/관점/메시지/함의/반응)' 조합 소제목을 잡는다.
+# '주택시장 동향' 같은 실제 뉴스 헤딩(시장+동향)은 보존되도록 어휘를 한정.
+_INVEST_HEADING = re.compile(r"투자|시장.{0,10}(신호|영향|전망|관점|메시지|함의|반응)")
+
+
+def _strip_investment_sections(body: str) -> str:
+    """본문에서 '## 투자…/시장 전망' 류 소제목 섹션을 제거.
+
+    market_impact 로 구조화된 '## 투자 관점' 을 따로 붙이므로, LLM 이 본문에
+    중복으로 만든 투자 전망 섹션을 결정론적으로 걷어낸다(다음 ## 또는 끝까지).
+    """
+    lines = body.splitlines(keepends=True)
+    out: list[str] = []
+    skip = False
+    for ln in lines:
+        m = re.match(r"^##\s+(.*)$", ln)
+        if m:
+            skip = bool(_INVEST_HEADING.search(m.group(1)))
+            if skip:
+                continue
+        if not skip:
+            out.append(ln)
+    return "".join(out).rstrip()
+
+
+def _render_market_impact(mi: dict | None) -> str:
+    """투자 관점 섹션 마크다운. mi 없으면 빈 문자열."""
+    if not mi:
+        return ""
+    out = ["\n\n## 투자 관점\n"]
+    if mi["summary"]:
+        out.append(mi["summary"] + "\n")
+    if mi["assets"]:
+        out.append("\n| 자산 | 예상 방향 | 근거 |")
+        out.append("\n|---|---|---|")
+        for a in mi["assets"]:
+            d = (a.get("direction") or "").strip()
+            d_disp = f"{_DIR_EMOJI.get(d, '')} {d}".strip()
+            rat = (a.get("rationale") or "").replace("|", "·").replace("\n", " ").strip()
+            name = str(a.get("name")).replace("|", "·").strip()
+            out.append(f"\n| {name} | {d_disp} | {rat} |")
+        out.append("\n")
+    meta = []
+    if mi["sectors"]:
+        meta.append("**관련 섹터**: " + ", ".join(mi["sectors"]))
+    if mi["time_horizon"]:
+        meta.append("**시간축**: " + mi["time_horizon"])
+    if mi["confidence"]:
+        meta.append("**해석 신뢰도**: " + mi["confidence"])
+    if meta:
+        out.append("\n" + " · ".join(meta) + "\n")
+    if mi["is_speculation"]:
+        out.append(
+            "\n> ⚠️ 이 해석은 발언의 정치적 수사 가능성을 포함하며, 실제 정책·시장 변수로 "
+            "확정된 내용이 아닙니다. 추측성 정보로만 참고하세요.\n"
+        )
+    return "".join(out)
+
+
 def _write_post(*, slug: str, title: str, date_kst: dt.datetime, description: str,
-                tags: list[str], body: str, fig: dict, sources: list[dict]) -> Path | None:
+                tags: list[str], body: str, fig: dict, sources: list[dict],
+                market_impact: dict | None = None) -> Path | None:
     POSTS.mkdir(parents=True, exist_ok=True)
     path = POSTS / f"{slug}.md"
     if path.exists():
         print(f"    skip (이미 존재): {path.name}")
         return None
+    mi = _clean_mi(market_impact)
     src_lines = "\n".join(
         f"- [{(s.get('text') or '원문')[:80]}]({s['url']})" for s in sources if s.get("url")
     )
@@ -332,21 +440,39 @@ def _write_post(*, slug: str, title: str, date_kst: dt.datetime, description: st
         "\n\n---\n\n"
         f"> 이 글은 {fig['name_ko']}({fig['title']})의 {platform_label(fig)} 공개 게시물을 "
         "한국어로 요약·해설한 콘텐츠입니다. 인용은 비평·보도 목적이며, 원문은 아래 출처에서 확인할 수 있습니다.\n\n"
+        "> ⚠️ **투자 유의 고지**: 본 콘텐츠는 공개된 발언을 정리·해설한 정보 제공용이며, "
+        "특정 종목·자산의 매수·매도를 권유하는 투자자문이 아닙니다. "
+        "투자 판단과 그 결과의 책임은 전적으로 투자자 본인에게 있습니다.\n\n"
         "**원문 출처**\n\n" + (src_lines or "- (출처 없음)")
     )
+
+    def _yaml_list(items: list[str]) -> str:
+        seen2: set[str] = set()
+        uniq = [x for x in items if x and not (x in seen2 or seen2.add(x))]
+        return "[" + ", ".join(f'"{_yaml_escape(x)}"' for x in uniq) + "]"
+
     seen: set[str] = set()
     uniq_tags = [t for t in tags if t and not (t in seen or seen.add(t))]
     tags_yaml = "[" + ", ".join(f'"{_yaml_escape(t)}"' for t in uniq_tags) + "]"
-    front = (
-        "---\n"
-        f'title: "{_yaml_escape(title)}"\n'
-        f"date: {date_kst.isoformat()}\n"
-        "draft: false\n"
-        f"tags: {tags_yaml}\n"
-        f'description: "{_yaml_escape(description)}"\n'
-        "---\n\n"
-    )
-    path.write_text(front + body.strip() + footer + "\n", encoding="utf-8")
+    front_lines = [
+        "---",
+        f'title: "{_yaml_escape(title)}"',
+        f"date: {date_kst.isoformat()}",
+        "draft: false",
+        f"tags: {tags_yaml}",
+    ]
+    if mi:  # 자산/섹터 taxonomy (Hugo: /sectors/, /assets/ 로 탐색)
+        sectors = mi["sectors"]
+        assets = [str(a["name"]).strip() for a in mi["assets"] if a.get("name")]
+        if sectors:
+            front_lines.append(f"sectors: {_yaml_list(sectors)}")
+        if assets:  # 복수형 taxonomy 키가 'asset' → front matter 키도 'asset'
+            front_lines.append(f"asset: {_yaml_list(assets)}")
+    front_lines.append(f'description: "{_yaml_escape(description)}"')
+    front_lines.append("---\n\n")
+    front = "\n".join(front_lines)
+    body_out = _strip_investment_sections(body) if mi else body.strip()
+    path.write_text(front + body_out + _render_market_impact(mi) + footer + "\n", encoding="utf-8")
     print(f"    생성: {path.name}")
     return path
 
@@ -359,8 +485,10 @@ def _digest_system(fig: dict) -> str:
         "하루치를 정리한 한국어 다이제스트 글을 쓴다. "
         "원문을 그대로 번역해 나열하지 말고, 주제별로 묶어 핵심을 요약하고 맥락·배경을 곁들인 해설을 더한다. "
         "사실에 근거하고 과장하지 말 것. 마크다운 본문은 ## 소제목으로 주제를 나눈다. "
+        + INVESTMENT_GUIDE + " "
         "반드시 아래 JSON 스키마로만 답한다: "
-        '{"title": str, "description": str(80자 이내), "tags": [str], "body_markdown": str}'
+        '{"title": str, "description": str(80자 이내), "tags": [str], "body_markdown": str, '
+        + MARKET_IMPACT_SCHEMA + "}"
     )
 
 
@@ -393,6 +521,7 @@ def run_digest_for(fig: dict, target: dt.date) -> bool:
         body=result.get("body_markdown", ""),
         fig=fig,
         sources=day_posts,
+        market_impact=result.get("market_impact"),
     )
     return True
 
@@ -405,9 +534,11 @@ def _breaking_system(fig: dict) -> str:
         "한국어 속보 기사로 가공한다. "
         "먼저 이 게시물이 뉴스 가치가 있는지 1~5 점으로 평가한다(5=중대 정책/외교/시장 영향, 1=잡담). "
         "원문 전재 금지 — 핵심을 요약하고 배경·맥락을 해설한다. 사실에 근거하고 과장 금지. "
+        + INVESTMENT_GUIDE + " "
         "반드시 아래 JSON 스키마로만 답한다: "
         '{"importance": int(1~5), "title": str, "description": str(80자 이내), '
-        '"tags": [str], "body_markdown": str}'
+        '"tags": [str], "body_markdown": str, '
+        + MARKET_IMPACT_SCHEMA + "}"
     )
 
 
@@ -447,6 +578,7 @@ def run_breaking_for(fig: dict, state: dict) -> int:
             body=result.get("body_markdown", ""),
             fig=fig,
             sources=[p],
+            market_impact=result.get("market_impact"),
         )
         made += 1
 

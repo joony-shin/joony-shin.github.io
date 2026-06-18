@@ -1,22 +1,34 @@
 {
+  "_category_legend": {
+    "politics": "정치인 발언",
+    "centralbank": "중앙은행(통화정책·결정문)",
+    "regulator": "정책·규제 기관 보도자료",
+    "commentary": "경제학자·평론가 논평",
+    "business": "기업인·투자자 발언"
+  },
   "figures": [
-    { "key": "trump",    "name_ko": "도널드 트럼프", "title": "미국 대통령",       "source": "truthsocial", "handle": "realDonaldTrump",            "tags": ["트럼프", "미국정치"] },
+    { "key": "trump",    "name_ko": "도널드 트럼프", "title": "미국 대통령",       "source": "truthsocial", "handle": "realDonaldTrump",            "category": "politics",    "tags": ["트럼프", "미국정치"] },
 
-    { "key": "krugman",  "name_ko": "폴 크루그먼",   "title": "노벨경제학상 수상자", "source": "bluesky",     "handle": "pkrugman.bsky.social",       "tags": ["폴크루그먼", "경제"] },
-    { "key": "reich",    "name_ko": "로버트 라이시", "title": "전 미국 노동장관",   "source": "bluesky",     "handle": "rbreich.bsky.social",        "tags": ["로버트라이시", "경제", "미국정치"] },
-    { "key": "cuban",    "name_ko": "마크 큐반",     "title": "기업인·투자자",     "source": "bluesky",     "handle": "mcuban.bsky.social",         "tags": ["마크큐반", "경제"] },
-    { "key": "scanlon",  "name_ko": "카일라 스캔런", "title": "경제 평론가",       "source": "bluesky",     "handle": "kyla.bsky.social",           "tags": ["카일라스캔런", "경제"] },
+    { "key": "krugman",  "name_ko": "폴 크루그먼",   "title": "노벨경제학상 수상자", "source": "bluesky",     "handle": "pkrugman.bsky.social",       "category": "commentary",  "tags": ["폴크루그먼", "경제"] },
+    { "key": "reich",    "name_ko": "로버트 라이시", "title": "전 미국 노동장관",   "source": "bluesky",     "handle": "rbreich.bsky.social",        "category": "commentary",  "tags": ["로버트라이시", "경제", "미국정치"] },
+    { "key": "furman",   "name_ko": "제이슨 퍼먼",   "title": "전 백악관 CEA 위원장", "source": "bluesky",     "handle": "jasonfurman.bsky.social",    "category": "commentary",  "tags": ["제이슨퍼먼", "경제", "인플레이션", "고용"] },
+    { "key": "scanlon",  "name_ko": "카일라 스캔런", "title": "경제 평론가",       "source": "bluesky",     "handle": "kyla.bsky.social",           "category": "commentary",  "tags": ["카일라스캔런", "경제"] },
 
-    { "key": "fed",      "name_ko": "미국 연방준비제도", "title": "중앙은행",      "source": "bluesky",     "handle": "federalreserve.gov",         "tags": ["연준", "중앙은행", "경제"] },
-    { "key": "ecb",      "name_ko": "유럽중앙은행(ECB)", "title": "중앙은행",      "source": "bluesky",     "handle": "ecb.europa.eu",              "tags": ["ECB", "중앙은행", "경제"] },
-    { "key": "lagarde",  "name_ko": "크리스틴 라가르드", "title": "ECB 총재",      "source": "bluesky",     "handle": "president.ecb.europa.eu",    "tags": ["라가르드", "ECB", "중앙은행"] },
-    { "key": "schnabel", "name_ko": "이자벨 슈나벨", "title": "ECB 이사",          "source": "bluesky",     "handle": "isabelschnabel.bsky.social", "tags": ["슈나벨", "ECB", "중앙은행"] },
+    { "key": "cuban",    "name_ko": "마크 큐반",     "title": "기업인·투자자",     "source": "bluesky",     "handle": "mcuban.bsky.social",         "category": "business",    "tags": ["마크큐반", "경제"] },
+    { "key": "ritholtz", "name_ko": "배리 리트홀츠", "title": "투자자·시장 평론가", "source": "bluesky",     "handle": "ritholtz.bsky.social",       "category": "business",    "tags": ["배리리트홀츠", "투자", "시장"] },
 
-    { "key": "aoc",      "name_ko": "알렉산드리아 오카시오코르테스", "title": "미국 하원의원", "source": "bluesky", "handle": "aoc.bsky.social",            "tags": ["AOC", "미국정치"] },
-    { "key": "sanders",  "name_ko": "버니 샌더스",   "title": "미국 상원의원",     "source": "bluesky",     "handle": "sanders.senate.gov",         "tags": ["버니샌더스", "미국정치"] },
-    { "key": "newsom",   "name_ko": "개빈 뉴섬",     "title": "캘리포니아 주지사", "source": "bluesky",     "handle": "governor.ca.gov",            "tags": ["개빈뉴섬", "미국정치"] },
+    { "key": "fed",      "name_ko": "미국 연방준비제도", "title": "중앙은행",      "source": "bluesky",     "handle": "federalreserve.gov",         "category": "centralbank", "tags": ["연준", "중앙은행", "경제"] },
+    { "key": "fed_fomc", "name_ko": "미국 연준(FOMC·통화정책)", "title": "중앙은행 통화정책", "source": "rss",     "handle": "https://www.federalreserve.gov/feeds/press_monetary.xml", "category": "centralbank", "tags": ["연준", "FOMC", "통화정책", "금리", "중앙은행"] },
+    { "key": "ecb",      "name_ko": "유럽중앙은행(ECB)", "title": "중앙은행",      "source": "bluesky",     "handle": "ecb.europa.eu",              "category": "centralbank", "tags": ["ECB", "중앙은행", "경제"] },
+    { "key": "lagarde",  "name_ko": "크리스틴 라가르드", "title": "ECB 총재",      "source": "bluesky",     "handle": "president.ecb.europa.eu",    "category": "centralbank", "tags": ["라가르드", "ECB", "중앙은행"] },
+    { "key": "schnabel", "name_ko": "이자벨 슈나벨", "title": "ECB 이사",          "source": "bluesky",     "handle": "isabelschnabel.bsky.social", "category": "centralbank", "tags": ["슈나벨", "ECB", "중앙은행"] },
 
-    { "key": "fsc_kr",   "name_ko": "금융위원회",    "title": "대한민국 금융정책 기관",   "source": "rss", "handle": "https://www.korea.kr/rss/dept_fsc.xml", "tags": ["금융위원회", "금융정책", "경제", "국내"], "no_breaking": true },
-    { "key": "ftc_kr",   "name_ko": "공정거래위원회", "title": "대한민국 경쟁정책 기관", "source": "rss", "handle": "https://www.korea.kr/rss/dept_ftc.xml", "tags": ["공정거래위원회", "경제", "국내"], "no_breaking": true }
+    { "key": "aoc",      "name_ko": "알렉산드리아 오카시오코르테스", "title": "미국 하원의원", "source": "bluesky", "handle": "aoc.bsky.social",            "category": "politics",    "tags": ["AOC", "미국정치"] },
+    { "key": "sanders",  "name_ko": "버니 샌더스",   "title": "미국 상원의원",     "source": "bluesky",     "handle": "sanders.senate.gov",         "category": "politics",    "tags": ["버니샌더스", "미국정치"] },
+    { "key": "newsom",   "name_ko": "개빈 뉴섬",     "title": "캘리포니아 주지사", "source": "bluesky",     "handle": "governor.ca.gov",            "category": "politics",    "tags": ["개빈뉴섬", "미국정치"] },
+
+    { "key": "fsc_kr",   "name_ko": "금융위원회",    "title": "대한민국 금융정책 기관",   "source": "rss", "handle": "https://www.korea.kr/rss/dept_fsc.xml",  "category": "regulator", "tags": ["금융위원회", "금융정책", "경제", "국내"], "no_breaking": true },
+    { "key": "ftc_kr",   "name_ko": "공정거래위원회", "title": "대한민국 경쟁정책 기관", "source": "rss", "handle": "https://www.korea.kr/rss/dept_ftc.xml",  "category": "regulator", "tags": ["공정거래위원회", "경제", "국내"], "no_breaking": true },
+    { "key": "moef_kr",  "name_ko": "기획재정부",    "title": "대한민국 경제·재정 정책 기관", "source": "rss", "handle": "https://www.korea.kr/rss/dept_moef.xml", "category": "regulator", "tags": ["기획재정부", "재정정책", "경제", "국내"], "no_breaking": true }
   ]
 }

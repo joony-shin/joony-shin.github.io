@@ -61,6 +61,17 @@ buildExpired = false
   [params.analytics.bing]
     SiteVerificationTag = ""
 
+# ── Taxonomy (분류 체계) ───────────────────────────────────────
+# 인물 태그(tags)와 별개로, 투자 관점에서 자동 추출되는
+# 섹터(sectors)·자산(assets)을 독립 분류로 두어 "에너지 섹터 영향 뉴스",
+# "유가 관련 발언" 처럼 자산 중심 탐색이 가능하게 한다.
+# asset 의 복수형을 "asset" 으로 둬 URL 을 /asset/ 으로 만든다.
+# (PaperMod 가 정적 리소스를 /assets/css, /assets/js 로 발행하므로 /assets/ 회피)
+[taxonomies]
+  tag = "tags"
+  sector = "sectors"
+  asset = "asset"
+
 [markup]
   [markup.highlight]
     noClasses = false
@@ -76,20 +87,30 @@ buildExpired = false
     url = "/posts/"
     weight = 10
   [[menu.main]]
+    identifier = "sectors"
+    name = "섹터"
+    url = "/sectors/"
+    weight = 20
+  [[menu.main]]
+    identifier = "assets"
+    name = "자산"
+    url = "/asset/"
+    weight = 30
+  [[menu.main]]
     identifier = "tags"
     name = "태그"
     url = "/tags/"
-    weight = 20
+    weight = 40
   [[menu.main]]
     identifier = "search"
     name = "검색"
     url = "/search/"
-    weight = 30
+    weight = 50
   [[menu.main]]
     identifier = "about"
     name = "소개"
     url = "/about/"
-    weight = 40
+    weight = 60
 
 # ── Google Analytics 4 (유입 추적) ─────────────────────────────
 # GA4 측정 ID(G-XXXXXXX)를 넣으면 모든 페이지에 추적 스크립트가 자동 삽입됩니다.

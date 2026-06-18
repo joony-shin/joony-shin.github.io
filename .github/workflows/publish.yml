@@ -7,6 +7,7 @@ on:
     # cron 시각은 UTC. KST = UTC+9.
     - cron: "0 0 * * *"        # digest  : 매일 00:00 UTC = 09:00 KST
     - cron: "0 * * * *"        # breaking: 매시 정각 (1시간 주기)
+    - cron: "0 9 * * 0"        # track   : 매주 일요일 09:00 UTC = 18:00 KST (투자 관점 사후검증)
   workflow_dispatch:           # 수동 실행 (모드 선택)
     inputs:
       mode:
@@ -14,7 +15,7 @@ on:
         required: true
         default: breaking
         type: choice
-        options: [digest, breaking]
+        options: [digest, breaking, track]
 
 # 콘텐츠 커밋(contents:write) + Pages 배포(pages/id-token)
 permissions:
@@ -52,11 +53,11 @@ jobs:
         id: mode
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            if [ "${{ github.event.schedule }}" = "0 0 * * *" ]; then
-              echo "mode=digest" >> "$GITHUB_OUTPUT"
-            else
-              echo "mode=breaking" >> "$GITHUB_OUTPUT"
-            fi
+            case "${{ github.event.schedule }}" in
+              "0 0 * * *") echo "mode=digest"   >> "$GITHUB_OUTPUT" ;;
+              "0 9 * * 0") echo "mode=track"    >> "$GITHUB_OUTPUT" ;;
+              *)           echo "mode=breaking" >> "$GITHUB_OUTPUT" ;;
+            esac
           else
             echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"
           fi
@@ -65,7 +66,12 @@ jobs:
         uses: astral-sh/setup-uv@v5
 
       - name: Generate posts
-        run: uv run automation/sns_blog.py "${{ steps.mode.outputs.mode }}"
+        run: |
+          if [ "${{ steps.mode.outputs.mode }}" = "track" ]; then
+            uv run automation/track_record.py
+          else
+            uv run automation/sns_blog.py "${{ steps.mode.outputs.mode }}"
+          fi
 
       - name: Commit content + state
         id: commit
@@ -73,9 +79,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull --rebase --autostash origin main || true
-          if [ -n "$(git status --porcelain content/posts automation/state.json)" ]; then
-            git add content/posts automation/state.json
-            git commit -m "content(${{ steps.mode.outputs.mode }}): 트럼프 트루스 소셜 자동 생성 $(date '+%F %T')"
+          if [ -n "$(git status --porcelain content/posts automation/state.json automation/track_state.json)" ]; then
+            git add content/posts
+            for f in automation/state.json automation/track_state.json; do
+              [ -f "$f" ] && git add "$f"
+            done
+            git commit -m "content(${{ steps.mode.outputs.mode }}): 자동 생성 $(date '+%F %T')"
             git push origin main
             echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "변경 푸시 완료 — 빌드/배포 진행."
