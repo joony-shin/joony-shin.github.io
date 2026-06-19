@@ -57,7 +57,8 @@
         "116772135215188960",
         "116772416131420569",
         "116772448531484273",
-        "116772506497851104"
+        "116772506497851104",
+        "116773596380247574"
       ]
     },
     "krugman": {
@@ -108,7 +109,8 @@
         "3moljaelqeg2e",
         "3molnrtudi226",
         "3molo7ih26x2j",
-        "3molqpwasuq2c"
+        "3molqpwasuq2c",
+        "3molwnjkeyy2c"
       ]
     },
     "cuban": {
@@ -165,8 +167,20 @@
         "3mogp6oezjc23",
         "3moird6lfcc2z",
         "3moj7ssrxpk2s",
-        "3molgt362d22u"
+        "3molgt362d22u",
+        "3molxhjkoq22i"
       ]
+    },
+    "furman": {
+      "published_breaking_ids": []
+    },
+    "ritholtz": {
+      "published_breaking_ids": [
+        "3molu3zsxsk24"
+      ]
+    },
+    "fed_fomc": {
+      "published_breaking_ids": []
     }
   }
 }
