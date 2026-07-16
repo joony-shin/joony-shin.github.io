@@ -20,10 +20,14 @@ from __future__ import annotations
 import datetime as dt
 import json
 import re
+import sys
 import urllib.parse
 import urllib.request
 from pathlib import Path
 from zoneinfo import ZoneInfo
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from taxonomy import normalize_assets  # noqa: E402
 
 KST = ZoneInfo("Asia/Seoul")
 UTC = dt.timezone.utc
@@ -278,9 +282,9 @@ def write_review(results: list[dict], today: dt.date) -> Path | None:
     def esc(s: str) -> str:
         return s.replace("\\", "\\\\").replace('"', '\\"')
 
-    assets = sorted({r["canonical"] for r in results})
-    sectors_seen: list[str] = []  # 리뷰글은 자산 중심
-    tags = ["투자관점", "적중리뷰", "track-record", "경제"]
+    # taxonomy 통제 어휘로 정규화 (시세 채점용 canonical 과 표기가 다를 수 있음)
+    assets = normalize_assets(sorted({r["canonical"] for r in results}))
+    tags = ["투자관점", "적중리뷰", "경제"]
     front = (
         "---\n"
         f'title: "{esc(title)}"\n'

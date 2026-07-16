@@ -37,6 +37,9 @@ from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 from openai import AzureOpenAI
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from taxonomy import normalize_assets, normalize_sectors, normalize_tags  # noqa: E402
+
 KST = ZoneInfo("Asia/Seoul")
 UTC = dt.timezone.utc
 TRUTHSOCIAL_ARCHIVE = "https://ix.cnn.io/data/truth-social/truth_archive.json"
@@ -53,10 +56,17 @@ SOURCES_PATH = HERE / "sources.json"
 load_dotenv(HERE / ".env")
 
 # 속보 판정 파라미터
+# (AdSense 저품질 대응: 대량 발행을 멈추고 소수 정예로 — 중요도 5만, 인물당 하루 2건)
 BREAKING_MIN_TEXT_LEN = 150        # 짧은 글/리포스트는 다이제스트로만
 BREAKING_LOOKBACK_HOURS = 8        # 폴링 주기보다 넉넉히 (중복은 state 로 방지)
-BREAKING_IMPORTANCE_THRESHOLD = 4  # LLM 1~5 점 중 이 이상만 단독 발행
+BREAKING_IMPORTANCE_THRESHOLD = 5  # LLM 1~5 점 중 이 이상만 단독 발행
 BREAKING_MAX_EVAL_PER_RUN = 8      # 인물당 1회 실행 LLM 평가 상한(비용 가드)
+BREAKING_DAILY_CAP = 2             # 인물당 하루(KST) 최대 속보 발행 수
+
+# 발행 품질 가드 (thin content 방지)
+MIN_BODY_CHARS_BREAKING = 700      # 속보 본문 최소 글자 수 (미달 시 발행 안 함)
+MIN_BODY_CHARS_DIGEST = 1000       # 다이제스트 본문 최소 글자 수
+DIGEST_MIN_SOURCE_POSTS = 2        # 이 미만 게시물로는 다이제스트를 만들지 않음
 
 # Bluesky 수집 가드
 BSKY_PAGE_LIMIT = 100
@@ -461,9 +471,9 @@ def _write_post(*, slug: str, title: str, date_kst: dt.datetime, description: st
         "draft: false",
         f"tags: {tags_yaml}",
     ]
-    if mi:  # 자산/섹터 taxonomy (Hugo: /sectors/, /assets/ 로 탐색)
-        sectors = mi["sectors"]
-        assets = [str(a["name"]).strip() for a in mi["assets"] if a.get("name")]
+    if mi:  # 자산/섹터 taxonomy — 통제 어휘로 정규화 (thin page 방지)
+        sectors = normalize_sectors(mi["sectors"])
+        assets = normalize_assets([a["name"] for a in mi["assets"] if a.get("name")])
         if sectors:
             front_lines.append(f"sectors: {_yaml_list(sectors)}")
         if assets:  # 복수형 taxonomy 키가 'asset' → front matter 키도 'asset'
@@ -484,6 +494,9 @@ def _digest_system(fig: dict) -> str:
         f"{fig['name_ko']}({fig['title']})가 {platform_label(fig)}에 올린 게시물 목록을 받아, "
         "하루치를 정리한 한국어 다이제스트 글을 쓴다. "
         "원문을 그대로 번역해 나열하지 말고, 주제별로 묶어 핵심을 요약하고 맥락·배경을 곁들인 해설을 더한다. "
+        "각 주제마다 발언의 배경(왜 지금 이 발언이 나왔는지), 과거 발언·정책과의 연결, "
+        "반대 진영이나 시장의 관점 같은 독자적 맥락을 반드시 더해 깊이를 만든다 — "
+        "본문은 공백 포함 1,500자 이상으로 충실하게 쓴다. "
         "사실에 근거하고 과장하지 말 것. 마크다운 본문은 ## 소제목으로 주제를 나눈다. "
         + INVESTMENT_GUIDE + " "
         "반드시 아래 JSON 스키마로만 답한다: "
@@ -492,12 +505,21 @@ def _digest_system(fig: dict) -> str:
     )
 
 
-def run_digest_for(fig: dict, target: dt.date) -> bool:
+def run_digest_for(fig: dict, target: dt.date, state: dict | None = None) -> bool:
     day_start_utc = dt.datetime.combine(target, dt.time(0, 0), tzinfo=KST).astimezone(UTC)
     posts = fetch_posts(fig, since_utc=day_start_utc)
     day_posts = [p for p in posts if p["when_kst"].date() == target]
-    if not day_posts:
-        print(f"  [{fig['key']}] {target}: 게시물 없음 — skip")
+
+    # 이미 속보로 단독 발행한 게시물은 제외 — 같은 원문을 두 페이지에 싣지 않는다(중복 콘텐츠 방지)
+    if state:
+        already = set(state.get("figures", {}).get(fig["key"], {}).get("published_breaking_ids", []))
+        before = len(day_posts)
+        day_posts = [p for p in day_posts if p["id"] not in already]
+        if before != len(day_posts):
+            print(f"  [{fig['key']}] {target}: 속보 기발행 {before - len(day_posts)}건 제외")
+
+    if len(day_posts) < DIGEST_MIN_SOURCE_POSTS:
+        print(f"  [{fig['key']}] {target}: 게시물 {len(day_posts)}건 < {DIGEST_MIN_SOURCE_POSTS}건 — skip (thin 방지)")
         return False
     day_posts.sort(key=lambda x: x["when_utc"])
     print(f"  [{fig['key']}] {target}: {len(day_posts)}건")
@@ -511,14 +533,18 @@ def run_digest_for(fig: dict, target: dt.date) -> bool:
         f"게시물 {len(day_posts)}건:\n\n" + "\n".join(lines)
     )
     result = _llm_json(_digest_system(fig), user, max_tokens=6000)
+    body_md = result.get("body_markdown", "")
+    if len(body_md) < MIN_BODY_CHARS_DIGEST:
+        print(f"  [{fig['key']}] {target}: 본문 {len(body_md)}자 < {MIN_BODY_CHARS_DIGEST}자 — 발행 안 함 (thin 방지)")
+        return False
     noon = dt.datetime.combine(target, dt.time(12, 0), tzinfo=KST)
     _write_post(
         slug=f"{target.isoformat()}-{fig['key']}-digest",
         title=result.get("title") or f"{fig['name_ko']} 다이제스트 ({target})",
         date_kst=noon,
         description=result.get("description", ""),
-        tags=(result.get("tags") or []) + fig["tags"] + ["다이제스트"],
-        body=result.get("body_markdown", ""),
+        tags=fig["tags"] + normalize_tags(result.get("tags") or []) + ["다이제스트"],
+        body=body_md,
         fig=fig,
         sources=day_posts,
         market_impact=result.get("market_impact"),
@@ -532,8 +558,12 @@ def _breaking_system(fig: dict) -> str:
         "당신은 국내외 정치·경제 속보를 한국 독자에게 전하는 블로그 에디터다. "
         f"{fig['name_ko']}({fig['title']})가 {platform_label(fig)}에 올린 게시물 1건을 받아, "
         "한국어 속보 기사로 가공한다. "
-        "먼저 이 게시물이 뉴스 가치가 있는지 1~5 점으로 평가한다(5=중대 정책/외교/시장 영향, 1=잡담). "
-        "원문 전재 금지 — 핵심을 요약하고 배경·맥락을 해설한다. 사실에 근거하고 과장 금지. "
+        "먼저 이 게시물이 뉴스 가치가 있는지 1~5 점으로 평가한다"
+        "(5=시장·정책을 실제로 움직일 수 있는 중대 발표, 4=주목할 만한 정책·외교 발언, 3 이하=논평·공방·잡담). "
+        "5점은 드물어야 정상이다 — 단순 비판·반복 주장·지지 선언은 3점 이하로 매긴다. "
+        "원문 전재 금지 — 핵심을 요약하고, 발언의 배경(왜 지금인지), 과거 발언·정책과의 연결, "
+        "예상되는 반응까지 해설을 더해 본문을 공백 포함 1,000자 이상으로 쓴다. "
+        "사실에 근거하고 과장 금지. "
         + INVESTMENT_GUIDE + " "
         "반드시 아래 JSON 스키마로만 답한다: "
         '{"importance": int(1~5), "title": str, "description": str(80자 이내), '
@@ -547,6 +577,15 @@ def run_breaking_for(fig: dict, state: dict) -> int:
     published: set[str] = set(fstate.get("published_breaking_ids", []))
     now = dt.datetime.now(UTC)
     cutoff = now - dt.timedelta(hours=BREAKING_LOOKBACK_HOURS)
+
+    # 인물당 일일(KST) 발행 상한 — 대량 발행으로 인한 저품질 판정 방지
+    today_kst = dt.datetime.now(KST).date().isoformat()
+    if fstate.get("day") != today_kst:
+        fstate["day"] = today_kst
+        fstate["day_count"] = 0
+    if fstate.get("day_count", 0) >= BREAKING_DAILY_CAP:
+        print(f"  [{fig['key']}] 오늘 발행 {fstate['day_count']}건 — 일일 상한({BREAKING_DAILY_CAP}) 도달, skip")
+        return 0
 
     posts = fetch_posts(fig, since_utc=cutoff)
     candidates = [
@@ -569,18 +608,26 @@ def run_breaking_for(fig: dict, state: dict) -> int:
         importance = int(result.get("importance") or 0)
         if importance < BREAKING_IMPORTANCE_THRESHOLD:
             continue
+        body_md = result.get("body_markdown", "")
+        if len(body_md) < MIN_BODY_CHARS_BREAKING:
+            print(f"    본문 {len(body_md)}자 < {MIN_BODY_CHARS_BREAKING}자 — 발행 안 함 (thin 방지)")
+            continue
+        if fstate.get("day_count", 0) >= BREAKING_DAILY_CAP:
+            print(f"    일일 상한({BREAKING_DAILY_CAP}) 도달 — 이후 후보 발행 중단")
+            break
         _write_post(
             slug=f"breaking-{fig['key']}-{p['id']}",
             title=result.get("title") or f"{fig['name_ko']} 속보",
             date_kst=p["when_kst"],
             description=result.get("description", ""),
-            tags=(result.get("tags") or []) + fig["tags"] + ["속보"],
-            body=result.get("body_markdown", ""),
+            tags=fig["tags"] + normalize_tags(result.get("tags") or []) + ["속보"],
+            body=body_md,
             fig=fig,
             sources=[p],
             market_impact=result.get("market_impact"),
         )
         made += 1
+        fstate["day_count"] = fstate.get("day_count", 0) + 1
 
     fstate["published_breaking_ids"] = sorted(published)[-2000:]
     return made
@@ -608,10 +655,11 @@ def main() -> int:
 
     if args.mode == "digest":
         target = dt.date.fromisoformat(args.date) if args.date else (dt.datetime.now(KST) - dt.timedelta(days=1)).date()
+        state = _load_state()  # 읽기 전용 — 속보 기발행 게시물 중복 게재 방지용
         print(f"[digest] {target} — 인물 {len(figures)}명")
         for fig in figures:
             try:
-                run_digest_for(fig, target)
+                run_digest_for(fig, target, state=state)
             except Exception as e:  # 한 인물 실패가 전체를 막지 않도록
                 print(f"  [{fig['key']}] 오류: {e}")
         return 0

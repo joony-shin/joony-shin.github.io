@@ -31,6 +31,15 @@ hugo new content posts/내-글-제목.md
 모든 글 하단에 투자 유의 고지가 자동으로 들어간다. 추출된 섹터/자산은 front matter
 의 `sectors` / `asset` taxonomy 로 저장되어 `/sectors/`, `/asset/` 에서 탐색된다.
 
+### 품질 가드 (AdSense 저품질 대응)
+- **통제 어휘**: 태그·섹터·자산은 `automation/taxonomy.py` 의 canonical 로만 매핑
+  (LLM 자유 태그 금지 → 글 1개짜리 taxonomy 페이지 방지). 글 2개 미만 term
+  페이지는 `noindex`.
+- **발행 기준**: 속보는 중요도 5만·인물당 하루 2건, 본문 700자 미만 발행 안 함.
+  다이제스트는 게시물 2건 이상·본문 1,000자 이상일 때만 발행.
+- **중복 방지**: 속보로 단독 발행한 게시물은 다이제스트에서 제외.
+- 기존 글 일괄 정규화는 `automation/normalize_posts.py` (one-off, --dry-run 지원).
+
 ```bash
 # 수동 실행
 ./automation/run.sh digest      # 전 인물, 어제치 다이제스트 → commit → push

@@ -24,8 +24,8 @@ buildExpired = false
 [params]
   env = "production"        # robots, OpenGraph, schema.org 메타 활성화
   title = "joony-shin blog"
-  description = "국내외 정치·경제계 주요 인사들의 SNS 발언을 한국어로 정리하고 해설합니다."
-  keywords = ["정치", "경제", "트럼프", "미국정치", "SNS", "트루스소셜", "금융위", "한국어 브리핑"]
+  description = "정치인·중앙은행·경제학자의 공개 발언을 투자자 관점으로 해석합니다. 발언이 어떤 자산·섹터에 영향을 주는지 정리하고, 예측을 실제 시세와 대조해 기록합니다."
+  keywords = ["투자", "시장분석", "정치와 시장", "트럼프", "연준", "금리", "유가", "투자 시그널", "발언 분석"]
   author = "joony-shin"
   defaultTheme = "auto"     # light/dark 자동
   ShowReadingTime = true
@@ -43,8 +43,15 @@ buildExpired = false
   googleAdsenseClient = "ca-pub-9746752487835793"
 
   [params.homeInfoParams]
-    Title = "👋 안녕하세요"
-    Content = "국내외 정치·경제계 영향력 있는 인사들의 SNS 발언을 한국어로 빠르게 전합니다."
+    Title = "📈 발언을 시그널로"
+    Content = """정치인·중앙은행·경제학자의 공개 발언을 **투자자 관점**으로 해석합니다.
+각 글은 발언 요약·해설에 더해 영향받는 자산·섹터와 방향을 정리하고,
+지난 예측은 실제 시세와 대조해 **적중 여부를 기록**합니다.
+정치적 수사와 실제 시장 변수를 구분하는 것이 이 블로그의 원칙입니다."""
+
+  # 푸터: 필수 페이지 링크 (AdSense 심사 시 접근성 확인 대상)
+  [params.footer]
+    text = "[소개](/about/) · [개인정보처리방침](/privacy/)"
 
   [[params.socialIcons]]
     name = "github"

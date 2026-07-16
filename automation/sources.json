@@ -10,7 +10,7 @@
     { "key": "trump",    "name_ko": "도널드 트럼프", "title": "미국 대통령",       "source": "truthsocial", "handle": "realDonaldTrump",            "category": "politics",    "tags": ["트럼프", "미국정치"] },
 
     { "key": "krugman",  "name_ko": "폴 크루그먼",   "title": "노벨경제학상 수상자", "source": "bluesky",     "handle": "pkrugman.bsky.social",       "category": "commentary",  "tags": ["폴크루그먼", "경제"] },
-    { "key": "reich",    "name_ko": "로버트 라이시", "title": "전 미국 노동장관",   "source": "bluesky",     "handle": "rbreich.bsky.social",        "category": "commentary",  "tags": ["로버트라이시", "경제", "미국정치"] },
+    { "key": "reich",    "name_ko": "로버트 라이시", "title": "전 미국 노동장관",   "source": "bluesky",     "handle": "rbreich.bsky.social",        "category": "commentary",  "tags": ["로버트라이시", "경제", "미국정치"], "no_breaking": true },
     { "key": "furman",   "name_ko": "제이슨 퍼먼",   "title": "전 백악관 CEA 위원장", "source": "bluesky",     "handle": "jasonfurman.bsky.social",    "category": "commentary",  "tags": ["제이슨퍼먼", "경제", "인플레이션", "고용"] },
     { "key": "scanlon",  "name_ko": "카일라 스캔런", "title": "경제 평론가",       "source": "bluesky",     "handle": "kyla.bsky.social",           "category": "commentary",  "tags": ["카일라스캔런", "경제"] },
 

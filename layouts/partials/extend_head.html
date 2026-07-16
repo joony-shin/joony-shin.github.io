@@ -1,3 +1,10 @@
+{{/* 글 2개 미만 taxonomy term 페이지는 색인 제외 — thin page 로 인한
+     저품질(low value) 판정 방지. 테마가 내보내는 "index, follow" 와 함께
+     출력되지만, 검색엔진은 충돌 시 더 제한적인 규칙(noindex)을 따른다. */}}
+{{- if and (eq .Kind "term") (lt (len .Pages) 2) }}
+<meta name="robots" content="noindex">
+{{- end }}
+
 {{/* Google AdSense — hugo.toml 의 params.googleAdsenseClient 가 설정된 경우에만 출력.
      승인 전(빈 값)에는 아무 스크립트도 나가지 않아 안전하다. */}}
 {{- with .Site.Params.googleAdsenseClient }}
