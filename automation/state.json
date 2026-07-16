@@ -353,11 +353,16 @@
         "116923765602106745",
         "116924979201330474",
         "116925062992298605",
-        "116925095891363176"
-      ]
+        "116925095891363176",
+        "116926450735170990"
+      ],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "krugman": {
-      "published_breaking_ids": []
+      "published_breaking_ids": [],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "reich": {
       "published_breaking_ids": [
@@ -635,12 +640,16 @@
       ]
     },
     "cuban": {
-      "published_breaking_ids": []
+      "published_breaking_ids": [],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "scanlon": {
       "published_breaking_ids": [
         "3mqmjotcazs24"
-      ]
+      ],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "fed": {
       "published_breaking_ids": [
@@ -678,7 +687,9 @@
         "3mqn3cgxmhs2p",
         "3mqova6htbk2d",
         "3mqp74pa2wk2d"
-      ]
+      ],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "ecb": {
       "published_breaking_ids": [
@@ -769,7 +780,9 @@
         "3mqlufasvfc2c",
         "3mqo2kljqas2k",
         "3mqoec7d7fc25"
-      ]
+      ],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "lagarde": {
       "published_breaking_ids": [
@@ -788,16 +801,24 @@
         "3mqa5hos7y22t",
         "3mqa6ayj7ds2t",
         "3mqaag6d3rk2s"
-      ]
+      ],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "schnabel": {
-      "published_breaking_ids": []
+      "published_breaking_ids": [],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "aoc": {
-      "published_breaking_ids": []
+      "published_breaking_ids": [],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "sanders": {
-      "published_breaking_ids": []
+      "published_breaking_ids": [],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "newsom": {
       "published_breaking_ids": [
@@ -868,15 +889,20 @@
         "3mqnemgyyoc2v",
         "3mqp7pcvcvc2z",
         "3mqpjgboxyc2l",
-        "3mqppizgkss2t"
-      ]
+        "3mqppizgkss2t",
+        "3mqpuqgt6ik2v"
+      ],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "furman": {
       "published_breaking_ids": [
         "3mp4kfrwred2o",
         "3mpo3z7qvou26",
         "3mq63qnadrs2y"
-      ]
+      ],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "ritholtz": {
       "published_breaking_ids": [
@@ -884,12 +910,16 @@
         "3moncgqlnx22u",
         "3monk4422pk2u",
         "3mplx72ct3k27"
-      ]
+      ],
+      "day": "2026-07-16",
+      "day_count": 0
     },
     "fed_fomc": {
       "published_breaking_ids": [
         "3a0c041851e0d19a"
-      ]
+      ],
+      "day": "2026-07-16",
+      "day_count": 0
     }
   }
 }
