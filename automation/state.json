@@ -669,7 +669,10 @@
       ]
     },
     "cuban": {
-      "published_breaking_ids": [],
+      "published_breaking_ids": [
+        "3mr2iz324zc2h",
+        "3mr2jjwutzs2h"
+      ],
       "day": "2026-07-20",
       "day_count": 0
     },
