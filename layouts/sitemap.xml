@@ -1,0 +1,23 @@
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  {{- /* Hugo 내장 sitemap 템플릿 기반 오버라이드.
+       extend_head.html 이 noindex 처리하는 "글 2개 미만 taxonomy term" 페이지를
+       sitemap 에서도 제외한다 — noindex URL 을 sitemap 에 실으면 Google 에
+       상충 신호를 주므로, sitemap 은 색인 가능한 canonical URL 만 담는다.
+       front matter 의 sitemap.disable (예: /search/) 도 존중한다. */}}
+  {{- range .Data.Pages }}
+  {{- if .Sitemap.Disable }}{{ continue }}{{ end }}
+  {{- if and (eq .Kind "term") (lt (len .Pages) 2) }}{{ continue }}{{ end }}
+  {{- if .Permalink }}
+  <url>
+    <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
+    <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
+    <changefreq>{{ . }}</changefreq>{{ end }}{{ if ge .Sitemap.Priority 0.0 }}
+    <priority>{{ .Sitemap.Priority }}</priority>{{ end }}{{ if .IsTranslated }}{{ range .Translations }}
+    <xhtml:link rel="alternate" hreflang="{{ .Language.LanguageCode }}" href="{{ .Permalink }}"/>{{ end }}
+    <xhtml:link rel="alternate" hreflang="{{ .Language.LanguageCode }}" href="{{ .Permalink }}"/>{{ end }}
+  </url>
+  {{- end }}
+  {{- end }}
+</urlset>
