@@ -1,0 +1,121 @@
+{{- define "main" }}
+{{/* 커스텀 홈 — "발언을 시그널로" 대시보드형 랜딩.
+     글 상세/목록/태그 페이지는 PaperMod 기본 레이아웃을 그대로 쓴다. */}}
+
+{{- $posts := where site.RegularPages "Section" "posts" }}
+{{- $breaking := first 4 (where $posts "Params.tags" "intersect" (slice "속보")) }}
+{{- $digests := first 6 (where $posts "Params.tags" "intersect" (slice "다이제스트")) }}
+{{- $reviews := where $posts "Params.tags" "intersect" (slice "적중리뷰") }}
+
+<div class="hx-home">
+
+  {{/* ── 히어로 ─────────────────────────────────────── */}}
+  <section class="hx-hero">
+    <span class="hx-badge">매일 자동 수집 · 투자 관점 해설 · 적중 검증</span>
+    <h1>발언을 <em>시그널</em>로</h1>
+    <p>
+      정치인·중앙은행·경제학자의 공개 발언을 투자자 관점으로 해석합니다.
+      각 글은 영향받는 <strong>자산·섹터와 방향</strong>을 정리하고,
+      지난 예측은 실제 시세와 대조해 <strong>적중 여부를 기록</strong>합니다.
+    </p>
+    <div class="hx-cta">
+      <a class="hx-btn hx-btn-primary" href="{{ "posts/" | relURL }}">최신 글 보기</a>
+      <a class="hx-btn hx-btn-ghost" href="{{ "about/" | relURL }}">이 블로그의 원칙</a>
+    </div>
+    <div class="hx-stats">
+      <div class="hx-stat"><b>{{ len $posts }}</b><span>누적 글</span></div>
+      <div class="hx-stat"><b>{{ len site.Taxonomies.sectors }}</b><span>섹터 분류</span></div>
+      <div class="hx-stat"><b>{{ len site.Taxonomies.asset }}</b><span>자산 분류</span></div>
+      <div class="hx-stat"><b>7일</b><span>예측 검증 주기</span></div>
+    </div>
+  </section>
+
+  {{/* ── 속보 ───────────────────────────────────────── */}}
+  {{- with $breaking }}
+  <section class="hx-section">
+    <div class="hx-section-head">
+      <h2>🔥 최신 속보</h2>
+      <a href="{{ "tags/속보/" | relURL }}">전체 보기 →</a>
+    </div>
+    <div class="hx-grid">
+      {{- range . }}
+      <a class="hx-card" href="{{ .RelPermalink }}">
+        <time>{{ .Date.Format "2006.01.02" }}</time>
+        <h3>{{ .Title }}</h3>
+        <p>{{ with .Description }}{{ . }}{{ else }}{{ .Summary | plainify | truncate 90 }}{{ end }}</p>
+      </a>
+      {{- end }}
+    </div>
+  </section>
+  {{- end }}
+
+  {{/* ── 섹터/자산 바로가기 ─────────────────────────── */}}
+  <section class="hx-section">
+    <div class="hx-section-head"><h2>🎯 섹터별 시그널</h2></div>
+    <div class="hx-chips">
+      {{- range site.Taxonomies.sectors.ByCount }}
+      {{- with site.GetPage (printf "/sectors/%s" .Name) }}
+      <a class="hx-chip" href="{{ .RelPermalink }}">{{ .Title }}<b>{{ len .Pages }}</b></a>
+      {{- end }}
+      {{- end }}
+    </div>
+    <div class="hx-section-head hx-mt"><h2>💹 자산별 시그널</h2></div>
+    <div class="hx-chips">
+      {{- range site.Taxonomies.asset.ByCount }}
+      {{- with site.GetPage (printf "/asset/%s" .Name) }}
+      <a class="hx-chip" href="{{ .RelPermalink }}">{{ .Title }}<b>{{ len .Pages }}</b></a>
+      {{- end }}
+      {{- end }}
+    </div>
+  </section>
+
+  {{/* ── 적중 리뷰 ──────────────────────────────────── */}}
+  <section class="hx-section">
+    <div class="hx-section-head">
+      <h2>✅ 적중 기록</h2>
+      {{- if $reviews }}<a href="{{ "tags/적중리뷰/" | relURL }}">전체 보기 →</a>{{ end }}
+    </div>
+    {{- with first 2 $reviews }}
+    <div class="hx-grid">
+      {{- range . }}
+      <a class="hx-card" href="{{ .RelPermalink }}">
+        <time>{{ .Date.Format "2006.01.02" }}</time>
+        <h3>{{ .Title }}</h3>
+        <p>{{ .Description }}</p>
+      </a>
+      {{- end }}
+    </div>
+    {{- else }}
+    <div class="hx-note">
+      각 글의 투자 관점 예측은 발행 <b>7일 뒤 실제 시세</b>와 대조해 채점하고,
+      맞은 것과 틀린 것을 그대로 공개합니다. 첫 적중 리뷰가 준비 중입니다 —
+      매주 일요일 저녁에 발행됩니다.
+    </div>
+    {{- end }}
+  </section>
+
+  {{/* ── 최신 다이제스트 ───────────────────────────── */}}
+  {{- with $digests }}
+  <section class="hx-section">
+    <div class="hx-section-head">
+      <h2>📰 최신 다이제스트</h2>
+      <a href="{{ "tags/다이제스트/" | relURL }}">전체 보기 →</a>
+    </div>
+    <div class="hx-grid">
+      {{- range . }}
+      <a class="hx-card" href="{{ .RelPermalink }}">
+        <time>{{ .Date.Format "2006.01.02" }}</time>
+        <h3>{{ .Title }}</h3>
+        <p>{{ with .Description }}{{ . }}{{ else }}{{ .Summary | plainify | truncate 90 }}{{ end }}</p>
+      </a>
+      {{- end }}
+    </div>
+  </section>
+  {{- end }}
+
+  <div class="hx-all-posts">
+    <a class="hx-btn hx-btn-primary" href="{{ "posts/" | relURL }}">전체 글 보기 ({{ len $posts }})</a>
+  </div>
+
+</div>
+{{- end }}
