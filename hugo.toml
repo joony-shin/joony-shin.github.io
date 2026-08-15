@@ -51,7 +51,7 @@ buildExpired = false
 
   # 푸터: 필수 페이지 링크 (AdSense 심사 시 접근성 확인 대상)
   [params.footer]
-    text = "[소개](/about/) · [개인정보처리방침](/privacy/)"
+    text = "[소개](/about/) · [방법론](/methodology/) · [개인정보처리방침](/privacy/)"
 
   [[params.socialIcons]]
     name = "github"

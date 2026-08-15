@@ -39,6 +39,7 @@ from openai import AzureOpenAI
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from taxonomy import normalize_assets, normalize_sectors, normalize_tags  # noqa: E402
+from track_record import fetch_closes  # noqa: E402  (야후 시세 — 실측 스냅샷 재사용)
 
 KST = ZoneInfo("Asia/Seoul")
 UTC = dt.timezone.utc
@@ -86,6 +87,36 @@ INVESTMENT_GUIDE = (
     "본문(body_markdown)에는 '투자 관점/투자자 관점/시장 전망' 같은 별도 소제목을 만들지 말 것 "
     "(본문은 발언 요약·해설에 집중한다 — 투자 관점 섹션은 시스템이 따로 붙인다)."
 )
+
+# 제목 다양화 지침 (digest/breaking 공용)
+# "X의 하루 발언 다이제스트: …" 류 고정 패턴이 반복되면 검색엔진·AdSense 에
+# 자동 생성 저품질 신호를 준다 — 제목은 그날의 핵심 주장이 담긴 뉴스 헤드라인으로.
+TITLE_GUIDE = (
+    "제목은 그날 발언에서 가장 중요한 주장·사실을 구체적으로 담은 뉴스 헤드라인으로 짓는다. "
+    "'하루 발언 다이제스트', '~의 하루', '~ 다이제스트' 같은 상투적 접두어·고정 패턴을 "
+    "반복하지 말고 글마다 다른 제목이 되게 할 것 (인물 이름은 포함해도 좋다). "
+)
+
+# 실측 데이터·과거 기록 활용 지침 (digest 용)
+# 수치 환각 방지가 핵심: 시장 수치는 함께 제공되는 실측 스냅샷의 것만 인용하게 강제한다.
+VERIFICATION_GUIDE = (
+    "글 앞부분에서 '이번 발언에서 무엇이 새로운가'를 짚는다 — 함께 제공되는 이 인물의 "
+    "직전 다이제스트 기록과 비교해, 되풀이된 주장과 새로 나온 주장(또는 어조·강도 변화)을 구분할 것. "
+    "발언이 시장·경제 변수와 닿는 지점에서는 함께 제공되는 실측 시장 스냅샷의 수치를 "
+    "본문에 인용해 발언 내용과 실제 데이터의 일치/불일치를 짚는다. "
+    "단, 시장 수치는 스냅샷에 제공된 것만 인용하고 제공되지 않은 수치·통계를 지어내지 말 것 "
+    "(스냅샷이 없으면 수치 인용을 생략한다). "
+)
+
+# 실측 스냅샷 대상 자산 (track_record.ASSET_SYMBOLS 의 부분집합 — 대표 지표만)
+SNAPSHOT_ASSETS: list[tuple[str, str]] = [
+    ("WTI 원유", "CL=F"),
+    ("미국 10년 국채금리", "^TNX"),
+    ("달러인덱스", "DX-Y.NYB"),
+    ("S&P500", "^GSPC"),
+    ("코스피", "^KS11"),
+    ("비트코인", "BTC-USD"),
+]
 
 # market_impact JSON 스키마 조각 (digest/breaking 공용)
 MARKET_IMPACT_SCHEMA = (
@@ -338,6 +369,68 @@ def _save_state(state: dict) -> None:
     STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+_SNAPSHOT_CACHE: str | None = None
+
+
+def _market_snapshot() -> str:
+    """주요 자산의 실측 시세 스냅샷(최근 1주 변화, 야후 종가).
+
+    LLM 프롬프트에 주입해 본문이 '실제 수치'에 근거하게 한다 — 수치 환각 방지를
+    위해 시스템 프롬프트에서 이 블록의 수치만 인용하도록 강제한다.
+    시세 조회 실패는 발행을 막지 않는다(빈 문자열 반환 → 수치 인용 생략).
+    한 번의 실행(여러 인물)에서 스냅샷은 동일하므로 결과를 캐시한다.
+    """
+    global _SNAPSHOT_CACHE
+    if _SNAPSHOT_CACHE is not None:
+        return _SNAPSHOT_CACHE
+    end = dt.datetime.now(UTC)
+    start = end - dt.timedelta(days=14)
+    lines: list[str] = []
+    for name, symbol in SNAPSHOT_ASSETS:
+        try:
+            closes = fetch_closes(symbol, start, end)
+        except Exception:
+            continue
+        if len(closes) < 2:
+            continue
+        days = sorted(closes)
+        last_d, last_c = days[-1], closes[days[-1]]
+        base_target = last_d - dt.timedelta(days=7)
+        base_d = max((d for d in days if d <= base_target), default=days[0])
+        base_c = closes[base_d]
+        if not base_c:
+            continue
+        pct = (last_c - base_c) / base_c * 100.0
+        lines.append(f"- {name}: {last_c:,.2f} ({base_d} 대비 {pct:+.1f}%, 기준일 {last_d})")
+    _SNAPSHOT_CACHE = (
+        "실측 시장 스냅샷 (야후 파이낸스 종가, 최근 1주 변화):\n" + "\n".join(lines)
+        if lines else ""
+    )
+    return _SNAPSHOT_CACHE
+
+
+def _recent_digests(fig_key: str, before: dt.date, n: int = 3) -> list[tuple[str, str, str]]:
+    """이 인물의 직전 다이제스트 (날짜, 제목, 요약) 최근 n건.
+
+    새 글이 과거 발언과 '무엇이 달라졌는지'를 실제 발행 기록에 근거해 비교하게
+    한다(환각 없는 과거 비교). 발행된 글 자체가 기록이므로 별도 상태 파일이 필요 없다.
+    """
+    out: list[tuple[str, str, str]] = []
+    for p in sorted(POSTS.glob(f"*-{fig_key}-digest.md"), reverse=True):
+        m = re.match(r"(\d{4}-\d{2}-\d{2})-", p.name)
+        if not m or m.group(1) >= before.isoformat():
+            continue
+        text = p.read_text(encoding="utf-8")
+        tm = re.search(r'^title:\s*"(.*)"\s*$', text, re.MULTILINE)
+        dm = re.search(r'^description:\s*"(.*)"\s*$', text, re.MULTILINE)
+        title = (tm.group(1) if tm else "").replace('\\"', '"')
+        desc = (dm.group(1) if dm else "").replace('\\"', '"')
+        out.append((m.group(1), title, desc))
+        if len(out) >= n:
+            break
+    return out
+
+
 def _llm_json(system: str, user: str, *, max_tokens: int = 4000) -> dict:
     resp = _client().chat.completions.create(
         model=DEPLOYMENT,
@@ -453,6 +546,9 @@ def _write_post(*, slug: str, title: str, date_kst: dt.datetime, description: st
         "> ⚠️ **투자 유의 고지**: 본 콘텐츠는 공개된 발언을 정리·해설한 정보 제공용이며, "
         "특정 종목·자산의 매수·매도를 권유하는 투자자문이 아닙니다. "
         "투자 판단과 그 결과의 책임은 전적으로 투자자 본인에게 있습니다.\n\n"
+        "> 이 글의 투자 관점 예측은 발행 7일 뒤 실제 시세와 대조해 "
+        "[적중 리뷰](/tags/%EC%A0%81%EC%A4%91%EB%A6%AC%EB%B7%B0/)로 공개 검증됩니다. "
+        "수집·분석·검증 방식은 [방법론](/methodology/)을 참고하세요.\n\n"
         "**원문 출처**\n\n" + (src_lines or "- (출처 없음)")
     )
 
@@ -498,7 +594,10 @@ def _digest_system(fig: dict) -> str:
         "반대 진영이나 시장의 관점 같은 독자적 맥락을 반드시 더해 깊이를 만든다 — "
         "본문은 공백 포함 1,500자 이상으로 충실하게 쓴다. "
         "사실에 근거하고 과장하지 말 것. 마크다운 본문은 ## 소제목으로 주제를 나눈다. "
-        + INVESTMENT_GUIDE + " "
+        + TITLE_GUIDE + VERIFICATION_GUIDE + INVESTMENT_GUIDE + " "
+        "market_impact.assets 의 name 은 가급적 WTI 원유, 미국 국채금리, 달러인덱스, "
+        "S&P500, 코스피, 비트코인 같은 대표 지수·자산 표기를 사용해 7일 뒤 실제 시세로 "
+        "사후 채점이 가능하게 한다. "
         "반드시 아래 JSON 스키마로만 답한다: "
         '{"title": str, "description": str(80자 이내), "tags": [str], "body_markdown": str, '
         + MARKET_IMPACT_SCHEMA + "}"
@@ -532,6 +631,16 @@ def run_digest_for(fig: dict, target: dt.date, state: dict | None = None) -> boo
         f"인물: {fig['name_ko']} ({fig['title']})\n날짜: {target} (KST)\n"
         f"게시물 {len(day_posts)}건:\n\n" + "\n".join(lines)
     )
+    # 과거 발행 기록 + 실측 시세를 컨텍스트로 주입 — '무엇이 새로운가' 비교와
+    # 수치 인용이 실제 데이터에 근거하게 한다 (없으면 해당 요소는 생략됨)
+    recent = _recent_digests(fig["key"], target)
+    if recent:
+        user += "\n\n이 인물의 직전 다이제스트 기록 (반복 주장/새 주장 비교용):\n" + "\n".join(
+            f"- {d}: {t} — {desc}" for d, t, desc in recent
+        )
+    snapshot = _market_snapshot()
+    if snapshot:
+        user += "\n\n" + snapshot
     result = _llm_json(_digest_system(fig), user, max_tokens=6000)
     body_md = result.get("body_markdown", "")
     if len(body_md) < MIN_BODY_CHARS_DIGEST:
@@ -564,7 +673,9 @@ def _breaking_system(fig: dict) -> str:
         "원문 전재 금지 — 핵심을 요약하고, 발언의 배경(왜 지금인지), 과거 발언·정책과의 연결, "
         "예상되는 반응까지 해설을 더해 본문을 공백 포함 1,000자 이상으로 쓴다. "
         "사실에 근거하고 과장 금지. "
-        + INVESTMENT_GUIDE + " "
+        "발언이 시장 변수와 닿으면 함께 제공되는 실측 시장 스냅샷의 수치를 인용해 "
+        "실제 데이터와 대조하되, 스냅샷에 없는 수치·통계를 지어내지 말 것. "
+        + TITLE_GUIDE + INVESTMENT_GUIDE + " "
         "반드시 아래 JSON 스키마로만 답한다: "
         '{"importance": int(1~5), "title": str, "description": str(80자 이내), '
         '"tags": [str], "body_markdown": str, '
@@ -603,6 +714,9 @@ def run_breaking_for(fig: dict, state: dict) -> int:
             f"좋아요 {p['favourites']:,} / 리포스트 {p['reblogs']:,} / 댓글 {p['replies']:,}\n\n"
             f"게시물 원문:\n{p['text']}"
         )
+        snapshot = _market_snapshot()
+        if snapshot:
+            user += "\n\n" + snapshot
         result = _llm_json(_breaking_system(fig), user, max_tokens=4000)
         published.add(p["id"])  # 판정했으면 재평가 방지
         importance = int(result.get("importance") or 0)
