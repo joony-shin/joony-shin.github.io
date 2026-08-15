@@ -18,9 +18,30 @@
     {{- range $i, $e := .Params.keywords }}{{ if $i }}, {{ end }}{{ $e }}{{ end }} {{- else }}
     {{- range $i, $e := .Params.tags }}{{ if $i }}, {{ end }}{{ $e }}{{ end }} {{- end -}}">
 {{- end }}
-<meta name="description" content="{{- with .Description }}{{ . }}{{- else }}{{- if or .IsPage .IsSection}}
-    {{- .Summary | default (printf "%s - %s" .Title  site.Title) }}{{- else }}
-    {{- with site.Params.description }}{{ . }}{{- end }}{{- end }}{{- end -}}">
+{{- /* [로컬 오버라이드] 테마 원본은 description 없는 목록 페이지(taxonomy·term·
+     section 및 그 페이지네이션)를 전부 사이트 기본 설명으로 떨어뜨려 대량의
+     중복 meta description 을 만든다(네이버 SEO 진단 지적 항목). 목록 종류·제목·
+     글 수·페이지 번호를 조합해 페이지마다 고유한 설명을 생성한다. */}}
+{{- $pageNum := 0 }}
+{{- if in (slice "section" "term") .Kind }}
+{{- with .Paginator }}{{ $pageNum = .PageNumber }}{{ end }}
+{{- end }}
+{{- $desc := .Description }}
+{{- if not $desc }}
+{{- if eq .Kind "term" }}
+{{- $desc = printf "'%s' 관련 글 %d건 — 발언을 투자자 관점으로 해석한 기록" .Title (len .Pages) }}
+{{- else if eq .Kind "taxonomy" }}
+{{- $desc = printf "%s 분류 %d개 — %s" .Title (len .Pages) site.Title }}
+{{- else if .IsSection }}
+{{- $desc = printf "%s 전체 글 %d건 — %s" .Title (len .RegularPages) site.Title }}
+{{- else if .IsPage }}
+{{- $desc = .Summary | plainify | default (printf "%s - %s" .Title site.Title) }}
+{{- else }}
+{{- $desc = site.Params.description }}
+{{- end }}
+{{- end }}
+{{- if gt $pageNum 1 }}{{ $desc = printf "%s (%d페이지)" $desc $pageNum }}{{ end }}
+<meta name="description" content="{{ $desc }}">
 <meta name="author" content="{{ (partial "author.html" . ) }}">
 {{- /* [로컬 오버라이드] 테마 원본은 페이지네이션 2페이지 이후에도 canonical 을
      목록 첫 페이지(.Permalink)로 내보낸다. Google 은 각 페이지가 자기 자신을

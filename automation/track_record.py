@@ -234,7 +234,8 @@ def build_review_markdown(results: list[dict], today: dt.date) -> tuple[str, str
     n = len(results)
     rate = round(hits / n * 100) if n else 0
     title = f"투자 관점 적중 리뷰 ({today.isoformat()}) — {n}건 중 {hits}건 적중"
-    desc = f"지난 발행 글의 자산 예측을 {HORIZON_DAYS}일 뒤 실제 시세와 대조한 결과 (적중률 {rate}%)"
+    # 날짜·건수를 포함해 회차마다 고유한 설명이 되게 한다 (중복 meta description 방지)
+    desc = f"{today.isoformat()} 기준 자산 예측 {n}건을 {HORIZON_DAYS}일 뒤 실제 시세와 대조한 결과 (적중률 {rate}%)"
 
     lines = [
         f"지난 글들의 `투자 관점`에서 제시한 자산 방향 예측을 발행 {HORIZON_DAYS}일 뒤 "
