@@ -681,12 +681,12 @@
         "117110334410901963",
         "117110479507145029"
       ],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "krugman": {
       "published_breaking_ids": [],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "reich": {
@@ -973,7 +973,7 @@
         "3mrimwtcphc2d",
         "3mrm4bsvxzc27"
       ],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "scanlon": {
@@ -981,7 +981,7 @@
         "3mqmjotcazs24",
         "3msyazkzzns2v"
       ],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "fed": {
@@ -1042,7 +1042,7 @@
         "3msvqlvmzbs2l",
         "3mt2xyg4bkk2x"
       ],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "ecb": {
@@ -1172,7 +1172,7 @@
         "3mszsbesbak2e",
         "3mtbdoankxc2p"
       ],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "lagarde": {
@@ -1196,22 +1196,22 @@
         "3mr7y63lwy22q",
         "3mrdfwtvoik22"
       ],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "schnabel": {
       "published_breaking_ids": [],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "aoc": {
       "published_breaking_ids": [],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "sanders": {
       "published_breaking_ids": [],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "newsom": {
@@ -1343,7 +1343,7 @@
         "3mt2vaph24k2v",
         "3mt5abqv3jk2k"
       ],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "furman": {
@@ -1352,7 +1352,7 @@
         "3mpo3z7qvou26",
         "3mq63qnadrs2y"
       ],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "ritholtz": {
@@ -1363,14 +1363,14 @@
         "3mplx72ct3k27",
         "3mrffetg3j22j"
       ],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     },
     "fed_fomc": {
       "published_breaking_ids": [
         "3a0c041851e0d19a"
       ],
-      "day": "2026-08-17",
+      "day": "2026-08-18",
       "day_count": 0
     }
   }
