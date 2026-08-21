@@ -743,12 +743,12 @@
         "117129360852240314",
         "117133120342300539"
       ],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "krugman": {
       "published_breaking_ids": [],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "reich": {
@@ -1035,7 +1035,7 @@
         "3mrimwtcphc2d",
         "3mrm4bsvxzc27"
       ],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "scanlon": {
@@ -1043,7 +1043,7 @@
         "3mqmjotcazs24",
         "3msyazkzzns2v"
       ],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "fed": {
@@ -1107,7 +1107,7 @@
         "3mtechpraak2m",
         "3mtesppdeb22m"
       ],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "ecb": {
@@ -1242,7 +1242,7 @@
         "3mtgbaarmp22o",
         "3mtlfmutr7k2k"
       ],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "lagarde": {
@@ -1266,22 +1266,22 @@
         "3mr7y63lwy22q",
         "3mrdfwtvoik22"
       ],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "schnabel": {
       "published_breaking_ids": [],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "aoc": {
       "published_breaking_ids": [],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "sanders": {
       "published_breaking_ids": [],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "newsom": {
@@ -1422,7 +1422,7 @@
         "3mtjqvmgyg227",
         "3mtk5subohs2k"
       ],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "furman": {
@@ -1431,7 +1431,7 @@
         "3mpo3z7qvou26",
         "3mq63qnadrs2y"
       ],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "ritholtz": {
@@ -1443,14 +1443,14 @@
         "3mrffetg3j22j",
         "3mtexn5rx622e"
       ],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     },
     "fed_fomc": {
       "published_breaking_ids": [
         "3a0c041851e0d19a"
       ],
-      "day": "2026-08-21",
+      "day": "2026-08-22",
       "day_count": 0
     }
   }
