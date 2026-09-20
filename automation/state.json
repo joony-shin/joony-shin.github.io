@@ -1039,12 +1039,12 @@
         "117303154231930646",
         "117303573478102353"
       ],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "krugman": {
       "published_breaking_ids": [],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "reich": {
@@ -1334,7 +1334,7 @@
         "3mu6izan6pc2f",
         "3mv27iufcos2w"
       ],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "scanlon": {
@@ -1342,7 +1342,7 @@
         "3mqmjotcazs24",
         "3msyazkzzns2v"
       ],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "fed": {
@@ -1426,7 +1426,7 @@
         "3mvsbyzu6yc2y",
         "3mvsyfgxwd22u"
       ],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "ecb": {
@@ -1604,7 +1604,7 @@
         "3mvrqujmsmc2z",
         "3mvuab4jors2g"
       ],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "lagarde": {
@@ -1640,22 +1640,22 @@
         "3mvscocu5r22b",
         "3mvshiixtws2p"
       ],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "schnabel": {
       "published_breaking_ids": [],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "aoc": {
       "published_breaking_ids": [],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "sanders": {
       "published_breaking_ids": [],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "newsom": {
@@ -1865,9 +1865,10 @@
         "3mvv3elcsus2g",
         "3mvv4y35ugk2j",
         "3mvvcgipzt22b",
-        "3mvvhsx4exs2g"
+        "3mvvhsx4exs2g",
+        "3mvxpgodli22p"
       ],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "furman": {
@@ -1876,7 +1877,7 @@
         "3mpo3z7qvou26",
         "3mq63qnadrs2y"
       ],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "ritholtz": {
@@ -1890,7 +1891,7 @@
         "3mtmcri4d322w",
         "3mu5st2agoc2y"
       ],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     },
     "fed_fomc": {
@@ -1898,7 +1899,7 @@
         "0e63f32df71a38be",
         "3a0c041851e0d19a"
       ],
-      "day": "2026-09-20",
+      "day": "2026-09-21",
       "day_count": 0
     }
   }
