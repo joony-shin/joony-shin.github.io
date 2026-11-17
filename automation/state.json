@@ -1588,12 +1588,12 @@
         "117629001831609398",
         "117629011695762969"
       ],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "krugman": {
       "published_breaking_ids": [],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "reich": {
@@ -1883,7 +1883,7 @@
         "3mu6izan6pc2f",
         "3mv27iufcos2w"
       ],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "scanlon": {
@@ -1897,9 +1897,10 @@
         "3myztkqdwxk2r",
         "3mz6m57uqfk2z",
         "3mzfxhcxwbc2l",
-        "3mzxjs6xts22u"
+        "3mzxjs6xts22u",
+        "3n2j5ew5uac2k"
       ],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "fed": {
@@ -2045,9 +2046,11 @@
         "3n27wrjzntk2n",
         "3n2a743xwus2n",
         "3n2gbjgfcf22y",
-        "3n2gyywpb3k2p"
+        "3n2gyywpb3k2p",
+        "3n2j7wpxpy22d",
+        "3n2jaac3uk22d"
       ],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "ecb": {
@@ -2341,9 +2344,10 @@
         "3n2ikfk5gp22y",
         "3n2iokfa4322m",
         "3n2ipehehds2o",
-        "3n2iqawpmzk2x"
+        "3n2iqawpmzk2x",
+        "3n2jofte2r22r"
       ],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "lagarde": {
@@ -2404,22 +2408,22 @@
         "3n222y3clj227",
         "3n22jythrds2b"
       ],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "schnabel": {
       "published_breaking_ids": [],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "aoc": {
       "published_breaking_ids": [],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "sanders": {
       "published_breaking_ids": [],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "newsom": {
@@ -2786,9 +2790,10 @@
         "3n2ha4w37y22h",
         "3n2hdi6qqmk26",
         "3n2hh5kbwk22y",
-        "3n2hqfczgac2p"
+        "3n2hqfczgac2p",
+        "3n2jmalhsck2z"
       ],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "furman": {
@@ -2860,9 +2865,13 @@
         "3n27y6gkdzu2c",
         "3n2bo3wuqcf24",
         "3n2e4olheew26",
-        "3n2h26d3gqi27"
+        "3n2h26d3gqi27",
+        "3n2jbamlxxt23",
+        "3n2jeyraszv2b",
+        "3n2jjr7xmvt2m",
+        "3n2jkexkyhx2m"
       ],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "ritholtz": {
@@ -2876,7 +2885,7 @@
         "3mtmcri4d322w",
         "3mu5st2agoc2y"
       ],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     },
     "fed_fomc": {
@@ -2886,7 +2895,7 @@
         "3a0c041851e0d19a",
         "f6997a0aae77945b"
       ],
-      "day": "2026-11-17",
+      "day": "2026-11-18",
       "day_count": 0
     }
   }
